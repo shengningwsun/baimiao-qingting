@@ -1,6 +1,6 @@
 # 白庙晴庭
 
-根据两层房屋平面图与外观效果图制作的 3D 房屋漫游 Android App。可参观各个房间、二楼阳台与门外平台；室内装修为设计补全。
+根据两层房屋平面图与外观效果图制作的 3D 房屋漫游，提供 Android App 与 iPhone 主屏幕离线 App。可参观各个房间、二楼阳台与门外平台；室内装修为设计补全。
 
 [下载最新安卓安装包](https://github.com/shengningwsun/baimiao-qingting/releases/latest/download/baimiao-qingting.apk) · [版本与发布说明](https://github.com/shengningwsun/baimiao-qingting/releases)
 
@@ -27,8 +27,21 @@
 https://github.com/shengningwsun/baimiao-qingting/releases/latest/download/latest.json
 ```
 
+
+## iPhone / iPad 安装
+
+[打开白庙晴庭](https://shengningwsun.github.io/baimiao-qingting/) · [苹果安装说明](https://shengningwsun.github.io/baimiao-qingting/install.html)
+
+用 Safari 打开房屋网址，点分享 → 添加到主屏幕。从桌面图标打开一次，保持联网等“已保存 · 可离线打开”；首次约保存 125 MB 的原精度资源，之后可断网参观。若从微信打开，请复制网址到 Safari。关闭系统竖排方向锁定并旋转手机到横屏。
+
+此版本采用 Safari 主屏幕 App，不是签名 IPA。默认流畅画质、菜单收起，保留白底房屋图标、高清家具、白墙灰砖及晚间天气；左侧摇杆、右侧环顾、右下角加速。每台手机分别保存资源。清理数据、删除 App 或系统回收缓存后需联网重存。
+
+联网启动可保存网页新版，待全部资源校验完成，点“新版已保存 · 点此更新”；手动检查在菜单中。失败保留旧版。分享房屋网址即可。
+
+已在本机 Chromium 和 Playwright WebKit 进行触控与主屏幕模拟，实际 iPhone 性能、安装流程及储存回收待真机验证。
+
 ## 本仓库内容
 
-本仓库用于安装包分发与更新，每个正式 Release 提供 `baimiao-qingting.apk` 和对应的 `latest.json`。家具、纹理及依赖的作者和许可说明在 App 的操作说明及随附资源中提供。更新下载不改变素材许可。
+本仓库 main 分支用于安卓安装包分发与更新，gh-pages 分支托管苹果主屏幕版的静态文件。每个正式 Release 提供 `baimiao-qingting.apk` 和对应的 `latest.json`。家具、纹理及依赖的作者和许可说明在 App 的操作说明及随附资源中提供。更新下载不改变素材许可。
 
 1.0.5 已通过本地签名、资源完整性、白墙灰砖约束、地面接缝、通行与手机触控模拟检查；新增阴影合批、镜面加载后固定捕获，保留按需渲染。安卓真机帧率与系统更新流程仍待验证。
