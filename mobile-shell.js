@@ -24,7 +24,7 @@
   updateButton.hidden = native ? typeof globalThis.TourApp.checkForUpdates !== 'function' : !('serviceWorker' in navigator && isSecureContext);
   updateButton.onclick = async () => {
     if(native) {globalThis.TourApp.checkForUpdates();return;}
-    if(registration?.waiting) {applyUpdate();return;}
+    if(await applyUpdate()) return;
     try {
       badge('正在检查更新…');
       await registerOffline(true);
@@ -37,17 +37,21 @@
       if(globalThis.__tour?.performance.ready){clearInterval(updateTimer);globalThis.TourApp.sceneReady();}
     },400);
   }
-  let installPrompt = null, registration = null, hideStatus = null, readyTimer = null;
-  status.onclick = () => {
-    if(registration?.waiting) {applyUpdate();return;}
+  let installPrompt = null, registration = null, hideStatus = null, readyTimer = null, pendingUpdate = null;
+  status.onclick = async () => {
+    if(await applyUpdate()) return;
     if(state.offlineError){state.offlineError = null;registerOffline(true);}
   };
   function announceUpdate() {badge('新版已保存 · 点此更新');}
-  function applyUpdate() {
-    if(!registration?.waiting) return;
+  async function applyUpdate() {
+    if(native || !('serviceWorker' in navigator)) return false;
+    const current = await navigator.serviceWorker.getRegistration(new URL('./',location.href).href);
+    const worker = current?.waiting || pendingUpdate;
+    if(!worker || worker.state === 'redundant') return false;
     window.dispatchEvent(new Event('blur'));
     badge('正在打开新版…');
-    registration.waiting.postMessage({kind:'APPLY_UPDATE'});
+    worker.postMessage({kind:'APPLY_UPDATE'});
+    return true;
   }
 
   function badge(text, hideAfter = 0) {
@@ -95,7 +99,7 @@
   function receive(event) {
     const data = event.data;if (!data?.kind) return;
     if(data.kind === 'OFFLINE_PROGRESS') badge(`${state.offlineReady ? '正在保存新版' : '正在保存离线'} · ${data.percent}%`);
-    if(data.kind === 'UPDATE_READY') announceUpdate();
+    if(data.kind === 'UPDATE_READY') {pendingUpdate=event.source;announceUpdate();}
     if(data.kind === 'OFFLINE_READY') {
       state.offlineReady = true;state.offlineError = null;state.version = data.version;
       badge('已保存 · 可离线打开', 6000);
