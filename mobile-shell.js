@@ -4,7 +4,7 @@
   const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const status = document.getElementById('offline-status');
-  const state = globalThis.__mobileApp = {native, installed, offlineReady: native, offlineError: null, version: null};
+  const state = globalThis.__mobileApp = {native, installed, offlineReady: native, offlineError: null, version: null, updateReady:false};
   document.body.classList.toggle('app-native', native);
   document.body.classList.toggle('app-installed', installed);
   const menu = document.getElementById('menu-toggle');
@@ -42,15 +42,20 @@
     if(await applyUpdate()) return;
     if(state.offlineError){state.offlineError = null;registerOffline(true);}
   };
-  function announceUpdate() {badge('新版已保存 · 点此更新');}
+  function announceUpdate(worker = registration?.waiting) {
+    if(worker && worker.state !== 'redundant') pendingUpdate=worker;
+    state.updateReady=true;
+    badge('新版已保存 · 点此更新');
+  }
   async function applyUpdate() {
     if(native || !('serviceWorker' in navigator)) return false;
-    const current = await navigator.serviceWorker.getRegistration(new URL('./',location.href).href);
-    const worker = current?.waiting || pendingUpdate;
-    if(!worker || worker.state === 'redundant') return false;
+    const current = await navigator.serviceWorker.getRegistration();
+    const worker = [current?.waiting,pendingUpdate].find(candidate=>candidate && ['installed','installing'].includes(candidate.state));
+    if(!worker) return false;
     window.dispatchEvent(new Event('blur'));
     badge('正在打开新版…');
     worker.postMessage({kind:'APPLY_UPDATE'});
+    state.updateReady=false;
     return true;
   }
 
@@ -99,7 +104,7 @@
   function receive(event) {
     const data = event.data;if (!data?.kind) return;
     if(data.kind === 'OFFLINE_PROGRESS') badge(`${state.offlineReady ? '正在保存新版' : '正在保存离线'} · ${data.percent}%`);
-    if(data.kind === 'UPDATE_READY') {pendingUpdate=event.source;announceUpdate();}
+    if(data.kind === 'UPDATE_READY') announceUpdate(event.source);
     if(data.kind === 'OFFLINE_READY') {
       state.offlineReady = true;state.offlineError = null;state.version = data.version;
       badge('已保存 · 可离线打开', 6000);
@@ -116,7 +121,7 @@
       registration = await navigator.serviceWorker.register('./sw.js', {scope:'./', updateViaCache:'none'});
       registration.addEventListener('updatefound',()=>{
         const worker=registration.installing;
-        worker?.addEventListener('statechange',()=>{if(worker.state==='installed' && registration.waiting) announceUpdate();});
+        worker?.addEventListener('statechange',()=>{if(worker.state==='installed' && registration.waiting) announceUpdate(worker);});
       });
       if(retry) await registration.update();
       registration.active?.postMessage({kind:'OFFLINE_STATUS'});
