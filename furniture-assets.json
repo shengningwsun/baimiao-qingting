@@ -1,0 +1,684 @@
+[
+  {
+    "id": "B075X4QMX3",
+    "name": "Stone & Beam Westport Modern Nailhead Upholstered Sofa, 87\"W, Linen",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/3/B075X4QMX3.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 49850,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          4096,
+          4096
+        ]
+      }
+    ],
+    "bytes": 8747996
+  },
+  {
+    "id": "B07B4ZM56C",
+    "name": "Amazon Brand – Stone & Beam Prudence Tufted Queen Bed, 66\"W, Curious Pearl",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/C/B07B4ZM56C.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 65470,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "bytes": 2725520
+  },
+  {
+    "id": "B07QD6TXWS",
+    "name": "Amazon Brand – Rivet Claremont Contemporary Nightstand with Tapered Legs, 20\"W, Pale Wood and White",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/S/B07QD6TXWS.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 14240,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          4096,
+          4096
+        ]
+      }
+    ],
+    "bytes": 4152944
+  },
+  {
+    "id": "B07JGMW8DG",
+    "name": "Amazon Brand - Movian Fils 2-Door Wardrobe, 86 x 198cm, White/Light Brown Oak-Effect",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/G/B07JGMW8DG.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 9762,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          4096,
+          4096
+        ]
+      }
+    ],
+    "bytes": 1703568
+  },
+  {
+    "id": "B07QGWMTDY",
+    "name": "Amazon Brand – Rivet Fulton Modern Rustic Dining Table, 71\"L, Natural",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/Y/B07QGWMTDY.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 17464,
+    "images": [
+      {
+        "role": "colour",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          4096,
+          4096
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "normal",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "bytes": 10636432
+  },
+  {
+    "id": "B07B7J2VCD",
+    "name": "Amazon Brand – Stone & Beam Casual Wood Bookcase, 34\"W, Natural Rattan",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/D/B07B7J2VCD.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 38530,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "bytes": 4492632
+  },
+  {
+    "id": "B07QBQCG77",
+    "name": "Amazon Brand – Rivet Contemporary Curved-Back Dining Chair, 35\"H, Felt Gray",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/7/B07QBQCG77.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 9916,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          4096,
+          4096
+        ]
+      }
+    ],
+    "bytes": 11222076
+  },
+  {
+    "id": "B07DBFFFYZ",
+    "name": "Amazon Brand – Ravenna Home Justin Industrial Shelf Storage Coffee Table, 43.3\"W, Pine Veneer and Black Metal",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/Z/B07DBFFFYZ.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 4512,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "bytes": 2947656
+  },
+  {
+    "id": "B07HSG5DGP",
+    "name": "Amazon Brand – Rivet Roxmere Mid-Century Modern TV Media Console Center Stand, 59\"W, Acacia Wood &amp; Dark Metal",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/P/B07HSG5DGP.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 7546,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "bytes": 894176
+  },
+  {
+    "id": "B07MBFDHMH",
+    "name": "Amazon Brand – Stone & Beam Table Lamp with Textured Ceramic Base, Bulb Included, 15\"H, Crackle White",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/H/B07MBFDHMH.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 14548,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          4096,
+          4096
+        ]
+      }
+    ],
+    "bytes": 4351256
+  },
+  {
+    "id": "B075HR4ZDB",
+    "name": "Amazon Brand – Stone & Beam Modern Decorative Ceramic Vase Decor With Geometric Pattern, 7.7 Inch Height, White",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/B/B075HR4ZDB.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 18080,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          4096,
+          4096
+        ]
+      }
+    ],
+    "bytes": 6865748
+  },
+  {
+    "id": "B07S6XKT5X",
+    "name": "Amazon Brand - AmazonBasics - Vanity Unit - 60 x 40 x 52.2 cm (L x D x H), White and Oak",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/X/B07S6XKT5X.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 7166,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          4096,
+          4096
+        ],
+        "packed": [
+          4096,
+          4096
+        ]
+      }
+    ],
+    "bytes": 1826648
+  },
+  {
+    "id": "B07B4W5R8N",
+    "name": "Amazon Brand – Rivet Jonathan Mid-Century Modern Mirror Wood Frame, 52\", Walnut",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/N/B07B4W5R8N.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 4362,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "bytes": 1594652
+  },
+  {
+    "id": "B07DBHC39X",
+    "name": "Ravenna Home Classic Linen Fabric Flushmount Ceiling Pendant Light Fixture with 2 LED Light Bulbs - 13 x 13 x 7.5 Inches, Silver",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/X/B07DBHC39X.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 8640,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "bytes": 2000384
+  },
+  {
+    "id": "B072ZMSBQT",
+    "name": "Amazon Brand – Rivet Molly Round Marble and Stainless Steel Side End Table",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/T/B072ZMSBQT.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 24120,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "bytes": 1374248
+  }
+]

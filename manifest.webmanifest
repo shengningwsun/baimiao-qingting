@@ -1,0 +1,27 @@
+{
+  "id": "./",
+  "name": "白庙晴庭 · 3D 房屋漫游",
+  "short_name": "白庙晴庭",
+  "description": "两层住宅与院落，高清家具，自由漫游，支持离线使用。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e9eee4",
+  "theme_color": "#163b36",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

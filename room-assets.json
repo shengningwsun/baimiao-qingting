@@ -1,0 +1,343 @@
+[
+  {
+    "id": "blendswap-cc-by-kitchenSink",
+    "bytes": 1146164,
+    "name": "kitchenSink",
+    "source": "https://www.sweethome3d.com/wp-content/themes/sweet-home-3d/theme/assets/models/blendswap-cc-by/kitchenSink.zip",
+    "license": "CC BY 3.0",
+    "author": "Jay-Artist",
+    "triangles": 12894,
+    "dimensions": [
+      97.58850860595703,
+      97.63339376449585,
+      71.68707847595215
+    ],
+    "images": [
+      {
+        "role": "colour",
+        "resolution": [
+          450,
+          300
+        ]
+      }
+    ]
+  },
+  {
+    "id": "blendswap-cc-by-kitchenLowerCabinet",
+    "bytes": 224588,
+    "name": "kitchenLowerCabinet",
+    "source": "https://www.sweethome3d.com/wp-content/themes/sweet-home-3d/theme/assets/models/blendswap-cc-by/kitchenLowerCabinet.zip",
+    "license": "CC BY 3.0",
+    "author": "Jay-Artist",
+    "triangles": 2060,
+    "dimensions": [
+      97.58853149414062,
+      87.80355036258698,
+      71.68707275390625
+    ],
+    "images": [
+      {
+        "role": "colour",
+        "resolution": [
+          450,
+          300
+        ]
+      }
+    ]
+  },
+  {
+    "id": "blendswap-cc-by-kitchenDrawersCabinet",
+    "bytes": 1015452,
+    "name": "kitchenDrawersCabinet",
+    "source": "https://www.sweethome3d.com/wp-content/themes/sweet-home-3d/theme/assets/models/blendswap-cc-by/kitchenDrawersCabinet.zip",
+    "license": "CC BY 3.0",
+    "author": "Jay-Artist",
+    "triangles": 11464,
+    "dimensions": [
+      44.225433349609375,
+      87.80355036258698,
+      71.22097778320312
+    ],
+    "images": [
+      {
+        "role": "colour",
+        "resolution": [
+          450,
+          300
+        ]
+      }
+    ]
+  },
+  {
+    "id": "blendswap-cc-by-kitchenUpperCabinet",
+    "bytes": 175408,
+    "name": "kitchenUpperCabinet",
+    "source": "https://www.sweethome3d.com/wp-content/themes/sweet-home-3d/theme/assets/models/blendswap-cc-by/kitchenUpperCabinet.zip",
+    "license": "CC BY 3.0",
+    "author": "Jay-Artist",
+    "triangles": 2036,
+    "dimensions": [
+      109.4343490600586,
+      77.13774108886719,
+      36.91140365600586
+    ],
+    "images": []
+  },
+  {
+    "id": "contributions-frigo",
+    "bytes": 892684,
+    "name": "frigo",
+    "source": "https://www.sweethome3d.com/wp-content/themes/sweet-home-3d/theme/assets/models/contributions/frigo.zip",
+    "license": "CC BY 3.0",
+    "author": "Gael Bettinelli",
+    "triangles": 10224,
+    "dimensions": [
+      57,
+      113.21673202514648,
+      60.038330078125
+    ],
+    "images": []
+  },
+  {
+    "id": "scopia-cooker",
+    "bytes": 300008,
+    "name": "cooker",
+    "source": "https://www.sweethome3d.com/wp-content/themes/sweet-home-3d/theme/assets/models/scopia/cooker.zip",
+    "license": "CC BY 3.0",
+    "author": "Scopia Visual Interfaces Systems, s.l.",
+    "triangles": 1892,
+    "dimensions": [
+      28.93600082397461,
+      27.057000015163794,
+      39.97599983215332
+    ],
+    "images": [
+      {
+        "role": "colour",
+        "resolution": [
+          512,
+          512
+        ]
+      },
+      {
+        "role": "colour",
+        "resolution": [
+          512,
+          512
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scopia-kitchenHood",
+    "bytes": 68524,
+    "name": "kitchenHood",
+    "source": "https://www.sweethome3d.com/wp-content/themes/sweet-home-3d/theme/assets/models/scopia/kitchenHood.zip",
+    "license": "CC BY 3.0",
+    "author": "Scopia Visual Interfaces Systems, s.l.",
+    "triangles": 680,
+    "dimensions": [
+      59.79999923706055,
+      14.299999713897705,
+      51.417999267578125
+    ],
+    "images": [
+      {
+        "role": "colour",
+        "resolution": [
+          512,
+          512
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scopia-coffee_machine",
+    "bytes": 739396,
+    "name": "coffee_machine",
+    "source": "https://www.sweethome3d.com/wp-content/themes/sweet-home-3d/theme/assets/models/scopia/coffee_machine.zip",
+    "license": "CC BY 3.0",
+    "author": "Scopia Visual Interfaces Systems, s.l.",
+    "triangles": 5534,
+    "dimensions": [
+      58.19321060180664,
+      36.376861572265625,
+      40.2417049407959
+    ],
+    "images": [
+      {
+        "role": "colour",
+        "resolution": [
+          912,
+          460
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scopia-cup",
+    "bytes": 3276032,
+    "name": "cup",
+    "source": "https://www.sweethome3d.com/wp-content/themes/sweet-home-3d/theme/assets/models/scopia/cup.zip",
+    "license": "CC BY 3.0",
+    "author": "Scopia Visual Interfaces Systems, s.l.",
+    "triangles": 29920,
+    "dimensions": [
+      11.97700023651123,
+      6.784000160172582,
+      11.978000164031982
+    ],
+    "images": [
+      {
+        "role": "colour",
+        "resolution": [
+          256,
+          256
+        ]
+      },
+      {
+        "role": "colour",
+        "resolution": [
+          438,
+          128
+        ]
+      }
+    ]
+  },
+  {
+    "id": "katorlegaz-plate-and-ustensils",
+    "bytes": 733852,
+    "name": "plate-and-ustensils",
+    "source": "https://www.sweethome3d.com/wp-content/themes/sweet-home-3d/theme/assets/models/katorlegaz/plate-and-ustensils.zip",
+    "license": "CC BY 3.0",
+    "author": "Andrew Kator & Jennifer Legaz",
+    "triangles": 8672,
+    "dimensions": [
+      1.485988974571228,
+      0.7253519874611811,
+      1.8692240118980408
+    ],
+    "images": []
+  },
+  {
+    "id": "blendswap-cc-by-largeStove",
+    "bytes": 6658084,
+    "name": "largeStove",
+    "source": "https://www.sweethome3d.com/wp-content/themes/sweet-home-3d/theme/assets/models/blendswap-cc-by/largeStove.zip",
+    "license": "CC BY 3.0",
+    "author": "Jay-Artist",
+    "triangles": 79080,
+    "dimensions": [
+      103.91600227355957,
+      85.20399785041809,
+      72.33899879455566
+    ],
+    "images": []
+  },
+  {
+    "id": "bath-toilet",
+    "bytes": 2303288,
+    "name": "Tank toilet with contoured ceramic bowl and seat",
+    "source": "https://opengameart.org/node/165996",
+    "license": "CC0",
+    "author": "loafbrr_1",
+    "triangles": 2050,
+    "images": [
+      {
+        "role": "Diffuse",
+        "resolution": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "role": "Normal",
+        "resolution": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "role": "AoRM",
+        "resolution": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "role": "Diffuse",
+        "resolution": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "role": "Normal",
+        "resolution": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "role": "AoRM",
+        "resolution": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "role": "Diffuse",
+        "resolution": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "role": "Normal",
+        "resolution": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "role": "AoRM",
+        "resolution": [
+          1024,
+          1024
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bath-basin",
+    "bytes": 1220036,
+    "name": "Ceramic basin with detailed mixer tap",
+    "source": "https://opengameart.org/node/165996",
+    "license": "CC0",
+    "author": "loafbrr_1",
+    "triangles": 956,
+    "images": [
+      {
+        "role": "Diffuse",
+        "resolution": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "role": "Normal",
+        "resolution": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "role": "AoRM",
+        "resolution": [
+          1024,
+          1024
+        ]
+      }
+    ]
+  }
+]

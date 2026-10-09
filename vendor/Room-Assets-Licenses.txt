@@ -1,0 +1,157 @@
+Room assets attribution and licenses
+
+Detailed asset IDs, authors, sources and modifications: see 素材来源.md and room-assets.json.
+Country Kitchen: Jay-Artist, CC BY 3.0. Sink modifications: Emmanuel Puybaret; double sink: Andrew Kator & Jennifer Legaz.
+Scopia: Scopia Visual Interfaces Systems, s.l., CC BY 3.0.
+frigo: Gael Bettinelli, CC BY 3.0 selected from the dual license in its original MTL.
+Plate and utensils: Andrew Kator & Jennifer Legaz, CC BY 3.0 US.
+Toilets and basin: loafbrr_1, CC0, https://opengameart.org/node/165996
+
+CC BY 3.0: https://creativecommons.org/licenses/by/3.0/
+CC BY 3.0 US: https://creativecommons.org/licenses/by/3.0/us/
+CC0: https://creativecommons.org/publicdomain/zero/1.0/
+
+
+Original notice: blendswap-cc-by-kitchenSink
+
+--------------------------------------------------------------------------------
+Thank you for downloading "Country-Kitchen  Cycles" by Jay-Artist
+modified by Emmanuel Puybaret to add the double sink by Kator Legaz available at http://www.katorlegaz.com/3d_models/
+Released under
+Creative Commons Attribution 3.0
+Downloaded from http://www.blendswap.com/blends/view/42851
+
+The following is important licensing information, please keep this file for
+archival and future reference when working with the file. It's important that
+you know, understand and follow any requirements stated in this file regarding
+the usage of the materials included.
+
+Some parts of this file are marked with [#], the corresponding numbered note is
+at the end of the file.
+
+--------------------------------------------------------------------------------
+################################################################################
+
+VERY IMPORTANT LICENSE INFORMATION:
+
+This blend has been released under
+Creative Commons Attribution 3.0
+
+This means that you can use it for any purpose you see fit, even commercially,
+as long as you respect these requirements:
+
+	--You MUST give credit to Jay-Artist.
+
+
+################################################################################
+--------------------------------------------------------------------------------
+
+ABOUT THE BLEND:
+
+Ready for Blender 2.62
+Published on: 2012-04-22 13:37:46
+
+--------------------------------------------------------------------------------
+
+HELP US MODERATE THIS BLEND:
+If you find anomalies in this blend or any of the contained files such as:
+
+	- Missing, unneeded or corrupted files.
+	- Inaccurate/mismatching preview image on the site.
+	- Illegal distribution of third party files.
+	- Ripping from a game or other 3D repository.
+	- Uncredited or incorrect use of other CC licensed works.
+	- Some other troubling issues[1].
+
+Please submit a report from  http://www.blendswap.com/blends/view/42851
+by pressing the red button with the flag, including links and details that serve
+as evidence and can help us to solve any conflicts or issues derived from the
+contents of this file.
+
+--------------------------------------------------------------------------------
+
+Thank you for using Blend Swap!
+
+Register to get tons of more blends! http://www.blendswap.com/register
+Share your own blends with the world from http://www.blendswap.com/blends/add
+
+Get answers to your questions and doubts: http://www.blendswap.com/page/faq
+If the site doesn't work for you try here: http://www.blendswap.com/page/issues
+For questions please contact us: http://www.blendswap.com/contact
+Check out our Terms Of Use: http://www.blendswap.com/tou
+Report website bugs: http://www.blendswap.com/bugs
+
+Consider getting an associate Membership to get some neat features and
+enhancements.
+
+--------------------------------------------------------------------------------
+
+NOTES:
+
+[1] Please make sure your problem is not derived from a setting in Blender (like
+hidden layers or objects) before submitting a report under the "Other" category.
+Issues arising from this type of problem will be ignored.
+
+--------------------------------------------------------------------------------
+######################    END OF BLEND SWAP LICENSE.txt    #####################
+Original notice: scopia-cooker
+
+This file is under the Creative Commons Attribution 3.0 Unported license:
+	
+http://creativecommons.org/licenses/by/3.0/
+	
+Your are free to:
+	
+	Share - copy and redistribute the material in any medium or format
+	
+	Adapt - remix, transform, and build upon the material
+	
+	for any purpose, even commercially.
+	
+ 	The licensor cannot revoke these freedoms as long as you follow the license terms.
+	
+Under the following terms:
+	
+	Attribution: If you want distribute this work, or
+	derivates, you must attribute it to  
+        Space Mushrooms <info@sweethome3d.com>  and
+        Scopia Visual Interfaces Systems, s.l. (http://www.scopia.es)
+
+Original notice: contributions-frigo
+
+# frigo.mtl 3D model
+#
+# Created by Gael Bettinelli
+#
+# This file is distributed under Free Art License, see http://artlibre.org/licence/lal/en for more informations
+# and under CC-BY Creative Commons Attribution 3.0 Unported license, see http://creativecommons.org/licenses/by/3.0/
+# at your choice
+# 
+
+newmtl Cube_1_1
+illum 2
+Ka 0.4488 0.47328 0.51
+Kd 0.93 0.958 1.0
+Ks 0.74 0.74 0.74
+Ns 103.0
+
+newmtl Noir
+illum 1
+Ka 0.0 0.0 0.0
+Kd 0.15 0.15 0.15
+Ks 0.0 0.0 0.0
+Ns 1.0
+
+newmtl Acier
+illum 2
+Ka 0.15 0.15 0.15
+Kd 0.62 0.62 0.62
+Ks 0.87 0.87 0.87
+Ns 103.0
+
+newmtl BlancJaunasse
+illum 1
+Ka 0.26 0.25501 0.2288
+Kd 1.0 0.96 0.75
+Ks 0.0 0.0 0.0
+Ns 1.0
