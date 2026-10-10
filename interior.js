@@ -100,13 +100,14 @@ for(let i=0;i<10;i++){
   for(const [x,base,z,direction] of [[-1.97,.45,-1-i*.31,1],[-.63,2.25,-3.79+i*.31,-1]]){
     stairSlab(x,base+h-.124,z,1.05,.192,.31,stairRiser,'灰石楼梯立面',i);
     stairSlab(x,base+h-.014,z+direction*.008,1.065,.028,.326,stairStone,'灰石楼梯踏面',i);
-    // Fine shadow joint and a rounded, slightly projecting stone nosing.
+    // Fine shadow joint below the slightly projecting stone nosing.
     box(x,base+h-.037,z+direction*.155,1.045,.008,.006,material(0x626b70,.48));
   }
 }
-// Concrete waist slabs support the flights; the volume below them stays open.
+// Concrete sits 4 cm inside each stone edge and at least 7 mm below the caps.
+// Coincident concrete/stone side planes otherwise produce flashing white bands.
 for(const [x,base,direction] of [[-1.97,.45,-1],[-.63,2.25,1]]){
-  const waist=box(x,base+.90-.03-.12/(2*Math.cos(Math.atan2(1.8,3.1))),-2.395,1.05,.12,Math.hypot(3.1,1.8),mat.interiorWall);
+  const waist=box(x,base+.90-.035-.12/(2*Math.cos(Math.atan2(1.8,3.1))),-2.395,.97,.12,Math.hypot(3.1,1.8),mat.interiorWall);
   waist.rotation.x=-direction*Math.atan2(1.8,3.1);waist.name='开放楼梯斜向结构板';
 }
 const stairLanding=stairSlab(-1.3,2.15,-4.4125,2.4,.2,.935,stairStone,'楼梯转角平台');

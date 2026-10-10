@@ -2,6 +2,7 @@ import * as T from './vendor/three.module.js';
 export const scene=new T.Scene();
 export const colliders=[];
 export const occlusionWalls=[];
+export const wallJoints=[];
 export const lamps=[];
 export const house=new T.Group();scene.add(house);
 export const colors={wall:0xf4f1e8,trim:0xe7e7dd,metal:0x293635};
@@ -59,7 +60,27 @@ const o=axis==='x'?box(x+t,y,z,w,h,depth,finish,house,solid):box(x,y,z+t,depth,h
 if(solid&&!m.transparent){o.userData.opaqueWall=true;const p=o.position,q=o.scale;occlusionWalls.push({axis:axis==='x'?2:0,min:[p.x-q.x/2,p.y-q.y/2,p.z-q.z/2],max:[p.x+q.x/2,p.y+q.y/2,p.z+q.z/2]});}
 return o;
 }
-export function wall(axis,x,z,length,base,height,openings=[],depth=.2,m=mat.wall){const ops=[...openings].sort((a,b)=>a.t-b.t);let at=-length/2;for(const o of ops){const left=o.t-o.w/2;if(left>at)piece(axis,x,z,(at+left)/2,base+height/2,left-at,height,depth,m);if(o.b>0)piece(axis,x,z,o.t,base+o.b/2,o.w,o.b,depth,m);const top=o.b+o.h;if(top<height)piece(axis,x,z,o.t,base+(top+height)/2,o.w,height-top,depth,m);if(o.type==='window')windowFrame(axis,x,z,o.t,base+o.b,o.w,o.h,depth);else if(o.type==='door')doorTrim(axis,x,z,o.t,base,o.w,o.h,depth);at=o.t+o.w/2}if(at<length/2)piece(axis,x,z,(at+length/2)/2,base+height/2,length/2-at,height,depth,m)}
+export function wall(axis,x,z,length,base,height,openings=[],depth=.2,m=mat.wall){
+const ops=[...openings].sort((a,b)=>a.t-b.t);let at=-length/2;
+for(const o of ops){const left=o.t-o.w/2;if(left>at)piece(axis,x,z,(at+left)/2,base+height/2,left-at,height,depth,m);if(o.b>0)piece(axis,x,z,o.t,base+o.b/2,o.w,o.b,depth,m);const top=o.b+o.h;if(top<height)piece(axis,x,z,o.t,base+(top+height)/2,o.w,height-top,depth,m);if(o.type==='window')windowFrame(axis,x,z,o.t,base+o.b,o.w,o.h,depth);else if(o.type==='door')doorTrim(axis,x,z,o.t,base,o.w,o.h,depth);at=o.t+o.w/2;}
+if(at<length/2)piece(axis,x,z,(at+length/2)/2,base+height/2,length/2-at,height,depth,m);
+// Connect wall courses across the floor thickness, including the open stairwell.
+// Omit horizontal caps: an extra cap at 4.05 would compete with finished floors.
+const ceiling=Math.abs(base-.45)<1e-6?4.05:Math.abs(base-4.05)<1e-6?7.42:null;
+if(ceiling!==null&&ceiling>base+height+1e-6){
+  const bottom=base+height,gap=ceiling-bottom;
+  const joint=piece(axis,x,z,0,(bottom+ceiling)/2,length,gap,depth,m);
+  const geometry=joint.geometry.clone(),indices=[],groups=[];
+  for(const group of geometry.groups){
+    if(group.materialIndex===2||group.materialIndex===3)continue;
+    groups.push({start:indices.length,count:group.count,materialIndex:group.materialIndex});
+    for(let i=group.start;i<group.start+group.count;i++)indices.push(geometry.index.getX(i));
+  }
+  geometry.setIndex(indices);geometry.clearGroups();for(const group of groups)geometry.addGroup(group.start,group.count,group.materialIndex);
+  geometry.type='WallJointGeometry';joint.geometry=geometry;joint.name=base<1?'一二楼墙体衔接':'墙顶与顶板衔接';
+  joint.userData.wallJoint={axis,x,z,length,bottom,top:ceiling};wallJoints.push(joint.userData.wallJoint);
+}
+}
 function windowFrame(axis,x,z,t,y,w,h,depth){const frame=.055;for(const side of [-1,1])piece(axis,x,z,t+side*(w/2-frame/2),y+h/2,frame,h,depth+.04,mat.metal,false);for(const by of [y+frame/2,y+h-frame/2,y+h*.75])piece(axis,x,z,t,by,w,frame,depth+.04,mat.metal,false);piece(axis,x,z,t,y+h/2,frame,h,depth+.045,mat.metal,false);const glass=piece(axis,x,z,t,y+h/2,w-.08,h-.06,.014,mat.glass,false);glass.name='建筑窗户';glass.userData.architecturalWindow={axis,x:axis==='x'?x+t:x,z:axis==='z'?z+t:z,bottom:y,width:w,height:h};glass.castShadow=false;piece(axis,x,z,t,y-.05,w+.15,.09,depth+.12,mat.trim,false)}
 function doorTrim(axis,x,z,t,y,w,h,depth){for(const side of [-1,1])piece(axis,x,z,t+side*(w/2+.025),y+h/2,.07,h,depth+.05,mat.wood,false);piece(axis,x,z,t,y+h,w+.12,.07,depth+.05,mat.wood,false)}
 const win=(t,w=1.8,b=.8,h=2.1)=>({t,w,b,h,type:'window'});const door=(t,w=1.05,h=2.45)=>({t,w,b:0,h,type:'door'});
@@ -82,7 +103,8 @@ occlusionWalls.push(
  ...upperSlabAreas.map(a=>({axis:1,min:[a.x0,3.83,a.z0],max:[a.x1,4.05,a.z1]})),
  {axis:1,min:[-6.625,7.42,-5.125],max:[6.625,7.62,5.125]}
 );
-// Lower facade stops at the slab underside. Its top must not protrude into upstairs finishes.
+// Lower facade courses stop at the slab underside; vertical-only joints close
+// the remaining height without adding a horizontal face inside upstairs finishes.
 for(let f=0;f<2;f++){const y=.45+3.6*f,facadeHeight=f?3.42:3.38;
 // Blue plan openings: one front/rear window per bedroom.
 // Lower north: bedroom C1821, stairs C1215, dining C1821.
