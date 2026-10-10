@@ -134,15 +134,16 @@ export function diningChair(x,z,y,angle=0){
   realFurniture(g,IDs.chair,{w:.54,h:.93,d:.57,rotation:Math.PI,name:'Rivet 曲面软包餐椅'});
   return g;
 }
-export function diningTable(x,z,y,w=1.15,d=2.1){
-  const g=furnitureGroup(x,z,y);contactShadow(g,w+.25,d+.25);
-  realFurniture(g,IDs.diningTable,{w,h:.795,d,rotation:Math.PI/2,name:'Fulton 实木与钢腿餐桌'});
-  for(const zz of [-.68,0,.68])for(const xx of [-.35,.35]){
-    rounded(xx,.807,zz,.34,.008,.3,upholstery.warm,.005,g);
-    const setting=new T.Group();setting.position.set(xx,.81,zz);setting.rotation.y=xx>0?Math.PI:0;g.add(setting);
-    realFurniture(setting,IDs.placeSetting,{w:.37,h:.17,d:.4,name:'陶瓷餐盘、杯子与金属餐具'});
+export function diningTable(x,z,y,diameter=1.4){
+  const g=furnitureGroup(x,z,y);g.name='六人圆形餐桌';contactShadow(g,diameter+.25,diameter+.25);
+  realFurniture(g,IDs.diningTable,{w:diameter,h:.795,d:diameter,name:'Stone & Beam 芒果木与金属圆餐桌'});
+  for(let i=0;i<6;i++){
+    const angle=i*Math.PI/3,xx=Math.sin(angle)*.45,zz=Math.cos(angle)*.45;
+    const setting=new T.Group();setting.position.set(xx,.805,zz);setting.rotation.y=angle;g.add(setting);
+    rounded(0,.002,0,.3,.008,.26,upholstery.warm,.005,setting);
+    realFurniture(setting,IDs.placeSetting,{w:.30,h:.14,d:.32,name:'陶瓷餐盘、杯子与金属餐具'});
   }
-  const vase=new T.Group();vase.position.y=.798;g.add(vase);
+  const vase=new T.Group();vase.position.set(0,.798,-.16);g.add(vase);
   realFurniture(vase,IDs.vase,{w:.16,h:.2,d:.16,name:'Stone & Beam 浮雕陶瓷花瓶'});
   return g;
 }

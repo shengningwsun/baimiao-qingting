@@ -680,5 +680,49 @@
       }
     ],
     "bytes": 1374248
+  },
+  {
+    "id": "B07HSBJDQP",
+    "name": "Amazon Brand – Stone & Beam Industrial Mango Wood Round Dining Table, 48\"W, Gunmetal Finish",
+    "source": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/P/B07HSBJDQP.glb",
+    "license": "CC BY 4.0",
+    "author": "Amazon.com, Inc.",
+    "triangles": 1464,
+    "images": [
+      {
+        "role": "normal",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "roughness-metalness",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "role": "colour",
+        "source": [
+          2048,
+          2048
+        ],
+        "packed": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "bytes": 2749168
   }
 ]

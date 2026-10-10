@@ -10,6 +10,23 @@ if(typeof Image!=='undefined'){
   pictureTexture.colorSpace=T.SRGBColorSpace;
 }
 const D=(t,w=1.05,h=2.45)=>({t,w,b:0,h,type:'door'});
+const stairStone=new T.MeshStandardMaterial({color:0x89959b,roughness:.23,metalness:0,envMapIntensity:1.1});stairStone.name='抛光灰色石材踏面';
+if(typeof Image!=='undefined'){
+  const loader=new T.TextureLoader();
+  const load=part=>{let done;materialLoads.push(new Promise(resolve=>done=resolve));const t=loader.load(assetPath('stair-marble-'+part+'.jpg'),done,undefined,done);t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=16;return t;};
+  stairStone.map=load('diffuse');stairStone.map.colorSpace=T.SRGBColorSpace;stairStone.roughnessMap=load('rough');
+}
+stairStone.onBeforeCompile=shader=>{shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\ndiffuseColor.rgb = vec3(dot(diffuseColor.rgb,vec3(0.2126,0.7152,0.0722)));');};
+stairStone.customProgramCacheKey=()=> 'polished-grey-stair-stone-v1';
+const stairRiser=stairStone.clone();stairRiser.name='浅灰色石材立面';stairRiser.color.set(0xacb7bc);stairRiser.roughness=.32;stairRiser.onBeforeCompile=stairStone.onBeforeCompile;stairRiser.customProgramCacheKey=stairStone.customProgramCacheKey;
+const railMetal=new T.MeshStandardMaterial({color:0xc2c8cc,metalness:.9,roughness:.23});railMetal.name='拉丝不锈钢楼梯扶手';
+// Full-resolution seamless marble, with a different cut for each stone tread.
+function stairSlab(x,y,z,w,h,d,m,name,index=0){
+  const o=box(x,y,z,w,h,d,m);o.name=name;o.geometry=o.geometry.clone();
+  const uv=o.geometry.attributes.uv;
+  for(let i=0;i<uv.count;i++)uv.setXY(i,.018+uv.getX(i)*.85,.018+uv.getY(i)*.27+(index%3)*.22);
+  uv.needsUpdate=true;return o;
+}
 // Finish both faces, stopping the skirting at door jambs to keep openings clear.
 function wall(axis,x,z,length,base,height,openings=[]){
   structuralWall(axis,x,z,length,base,height,openings,.2,mat.interiorWall);
@@ -68,7 +85,7 @@ wall('x',-4.55,1,3.9,y,3.36,[D(1.15)]);wall('x',4.55,1,3.9,y,3.36,[D(-1.15)]);
 wall('z',-2.6,3,4,y,3.36);wall('z',2.6,3,4,y,3.36);
 wall('z',-4.1,.1,1.8,y,3.36,[D(0,.86,2.2)]);wall('z',4.1,.1,1.8,y,3.36,[D(0,.86,2.2)]);
 wall('z',-2.6,-2.9,4.2,y,3.36);wall('z',0,-2.9,4.2,y,3.36);
-wall('x',-1.3,-.8,2.6,y,3.36,[D(f?.65:-.65,1,2.65)]);
+wall('x',-1.3,-.8,2.6,y,3.36,[{t:f?.67:-.67,w:1.16,b:0,h:3.12,type:'opening'}]);
 if(f){wall('z',2.8,-2.9,4.2,y,3.36);wall('x',1.4,-.8,2.8,y,3.36,[D(.55)]);bedroom(1.4,-2.9,2.8,4.2,y,clay,4);bedroom(4.65,-2.9,3.7,4.2,y,sage,5)}
 else{wall('z',3.7,-2.9,4.2,y,3.36,[D(.95,1.05)]);wall('x',1.85,-.8,3.7,y,3.36,[D(0,1.95,2.85)]);}
 bedroom(-4.55,-2.9,3.9,4.2,y,sage,0);bedroom(-4.55,3,3.9,4,y,linen,1);bedroom(4.55,3,3.9,4,y,f?clay:sage,2);
@@ -76,13 +93,39 @@ bathroom(-5.3,.1,y,1);bathroom(5.3,.1,y,-1);
 // Skirting and cove detail to give the rooms a finished edge.
 for(const z of [-4.88,4.87]){box(-4.55,y+.07,z,3.65,.12,.035,mat.skirting);box(4.55,y+.07,z,3.65,.12,.035,mat.skirting)}
 }
-// Two flights, landing and handrails. The upper floor opening stays unobstructed.
-for(let i=0;i<10;i++){const h=(i+1)*.18;box(-1.97,.45+h/2,-1.0-i*.31,1.05,h,.31,oak);box(-.63,2.25+h/2,-3.79+i*.31,1.06,h,.31,oak);box(-1.97,.45+h-.014,-.848-i*.31,1.05,.025,.035,mat.trim);box(-.63,2.25+h-.014,-3.942+i*.31,1.06,.025,.035,mat.trim)}
-const stairLanding=box(-1.3,2.15,-4.4125,2.4,.2,.935,oak);stairLanding.name='楼梯转角平台';
-box(-.63,4.025,-.8225,1.06,.05,.045,oak);
-box(-1.3,1.28,-2.37,.06,1.7,3.15,mat.wall);
-for(let i=0;i<10;i++){const z=-1-i*.31;bar([-2.45,.45+(i+1)*.18,z],[-2.45,1.38+(i+1)*.18,z],.017,mat.metal);const z2=-3.79+i*.31;bar([-.1,2.25+(i+1)*.18,z2],[-.1,3.18+(i+1)*.18,z2],.017,mat.metal)}bar([-2.45,1.56,-1],[-2.45,3.18,-3.79],.033,oak);bar([-.1,3.36,-3.79],[-.1,4.98,-1],.033,oak);bar([-2.45,3.2,-4.77],[-.1,3.2,-4.77],.032,oak);
-colliders.push({x0:-1.42,x1:-1.18,z0:-3.9,z1:-.88,y0:.45,y1:5.1});
+// Photo reference: pale risers, polished grey treads, open central edge.
+// The retained left wall and front return wall keep the real stairwell layout.
+for(let i=0;i<10;i++){
+  const h=(i+1)*.18;
+  for(const [x,base,z,direction] of [[-1.97,.45,-1-i*.31,1],[-.63,2.25,-3.79+i*.31,-1]]){
+    stairSlab(x,base+h-.124,z,1.05,.192,.31,stairRiser,'灰石楼梯立面',i);
+    stairSlab(x,base+h-.014,z+direction*.008,1.065,.028,.326,stairStone,'灰石楼梯踏面',i);
+    // Fine shadow joint and a rounded, slightly projecting stone nosing.
+    box(x,base+h-.037,z+direction*.155,1.045,.008,.006,material(0x626b70,.48));
+  }
+}
+// Concrete waist slabs support the flights; the volume below them stays open.
+for(const [x,base,direction] of [[-1.97,.45,-1],[-.63,2.25,1]]){
+  const waist=box(x,base+.90-.03-.12/(2*Math.cos(Math.atan2(1.8,3.1))),-2.395,1.05,.12,Math.hypot(3.1,1.8),mat.interiorWall);
+  waist.rotation.x=-direction*Math.atan2(1.8,3.1);waist.name='开放楼梯斜向结构板';
+}
+const stairLanding=stairSlab(-1.3,2.15,-4.4125,2.4,.2,.935,stairStone,'楼梯转角平台');
+stairSlab(-.63,4.025,-.8225,1.065,.05,.045,stairStone,'二楼楼梯石材收口');
+const rails=new T.Group();rails.name='上楼右侧不锈钢扶手';house.add(rails);
+for(const [x,base,start,direction] of [[-1.46,.45,-1,-1],[-1.14,2.25,-3.79,1]]){
+  for(let i=0;i<10;i++){
+    const z=start+direction*i*.31,step=base+(i+1)*.18;
+    bar([x,step,z],[x,step+.93,z],.017,railMetal,rails);
+    cylinder(x,step+.008,z,.036,.016,railMetal,rails);
+  }
+  for(const height of [.38,.66,.93])bar([x,base+.18+height,start],[x,base+1.8+height,start+direction*2.79],height===.93?.032:.012,railMetal,rails);
+  for(const [z,h] of [[start,base+.18+.93],[start+direction*2.79,base+1.8+.93]])sphere(x,h,z,.032,railMetal,rails);
+}
+// A short U-turn connects the two inner rails without crossing the landing route.
+bar([-1.46,3.18,-3.79],[-1.46,3.18,-3.98],.032,railMetal,rails);
+bar([-1.46,3.18,-3.98],[-1.14,3.36,-3.98],.032,railMetal,rails);
+bar([-1.14,3.36,-3.98],[-1.14,3.36,-3.79],.032,railMetal,rails);
+colliders.push({x0:-1.49,x1:-1.11,z0:-3.98,z1:-.88,y0:.45,y1:5.1,stairGuard:true});
 // Living room arranged to keep the entry and through-route clear.
 const y=.45;
 rug(-.7,2.03,2.95,2.4,y,0xc5baa1);
@@ -94,11 +137,11 @@ rounded(2.38,y+1.38,2,.055,.88,1.5,mat.metal,.015);
 box(2.341,y+1.38,2,.01,.78,1.4,material(0x172026,.13));
 ceilingLight(0,1.65,y,.52);
 // Dining, pendant and six chairs.
-colliders.push({x0:1.125,x1:2.275,z0:-4.05,z1:-1.95,y0:y,y1:y+.85});
-diningTable(1.7,-3,y,1.15,2.1);
-for(const xx of [.68,2.72])for(const zz of [-3.65,-3,-2.35])diningChair(xx,zz,y,xx<1.7?-Math.PI/2:Math.PI/2);
+colliders.push({x:1.8,z:-3,radius:.7,y0:y,y1:y+.85});
+diningTable(1.8,-3,y,1.4);
+for(let i=0;i<6;i++){const angle=i*Math.PI/3;diningChair(1.8+Math.sin(angle)*1.10,-3+Math.cos(angle)*1.10,y,angle);}
 
-picture(.12,-3.7,2.13,1.35,'z');ceilingLight(1.7,-2.6,y,.3);
+picture(.12,-3.7,2.13,1.35,'z');ceilingLight(1.8,-3,y,.3);
 // L-shaped kitchen and small appliances.
 kitchen(y);ceilingLight(5.15,-2.6,y);
 // Upstairs family lounge, books and balcony chairs.

@@ -101,9 +101,9 @@ export function finishRooms(){
   book(-2.28,2.53,4.05+.49,.23,.16,2);
   // A lathed porcelain bowl and softly irregular fruit, as in the reference dining scene.
   const profile=[[.0,.0],[.045,.005],[.11,.035],[.14,.09],[.145,.105],[.137,.106],[.13,.086],[.105,.04],[.025,.016]].map(p=>new T.Vector2(...p));
-  const bowl=new T.Mesh(new T.LatheGeometry(profile,32),ceramic);bowl.position.set(1.70,.45+.8,-2.27);bowl.castShadow=bowl.receiveShadow=true;house.add(bowl);
+  const bowl=new T.Mesh(new T.LatheGeometry(profile,32),ceramic);bowl.position.set(1.80,.45+.8,-2.86);bowl.castShadow=bowl.receiveShadow=true;house.add(bowl);
   const fruit=new T.MeshStandardMaterial({color:0xd7b448,roughness:.63});
-  for(const [x,z] of [[1.64,-2.28],[1.76,-2.25]])sphere(x,.45+.87,z,.051,fruit,house,[1.15,.83,.78]);
+  for(const [x,z] of [[1.74,-2.87],[1.86,-2.84]])sphere(x,.45+.87,z,.051,fruit,house,[1.15,.83,.78]);
 }
 
 // Capture each bathroom once, after the real furniture loads. No per-frame reflection render.

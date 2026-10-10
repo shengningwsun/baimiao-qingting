@@ -17,7 +17,7 @@
   setMenu(false);
   menu.onclick = () => setMenu(document.body.classList.contains('ui-collapsed'));
   document.addEventListener('click', event => {
-    if(event.composedPath().some(node=>node instanceof Element && node.matches('#places button,#orbit,#walk,#plans,#home,#help,#quality,#light,#share-app,#update-app,#install-app,#minimap'))) setMenu(false);
+    if(event.composedPath().some(node=>node instanceof Element && node.matches('#places button,#orbit,#walk,#plans,#home,#help,#quality,#light,#settings,#share-app,#update-app,#install-app,#minimap'))) setMenu(false);
   });
   document.getElementById('world').addEventListener('pointerdown',()=>setMenu(false));
   const updateButton = document.getElementById('update-app');

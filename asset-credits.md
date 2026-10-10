@@ -12,7 +12,8 @@
 | Stone & Beam Prudence 拉扣软包床，含床品与枕头 | B07B4ZM56C | 2048 × 2048 | 65,470 |
 | Rivet Claremont 双抽屉床头柜 | B07QD6TXWS | 4096 × 4096 | 14,240 |
 | Movian Fils 双门衣柜 | B07JGMW8DG | 4096 × 4096 | 9,762 |
-| Rivet Fulton 实木餐桌 | B07QGWMTDY | 4096 × 4096 | 17,464 |
+| Stone & Beam Industrial 芒果木与金属圆餐桌（当前餐厅） | B07HSBJDQP | 2048 × 2048 | 1,464 |
+| Rivet Fulton 实木餐桌（历史资产，当前场景不加载） | B07QGWMTDY | 4096 × 4096 | 17,464 |
 | Rivet 曲面软包餐椅 | B07QBQCG77 | 4096 × 4096 | 9,916 |
 | Ravenna Home Justin 木与金属双层茶几 | B07DBFFFYZ | 2048 × 2048 | 4,512 |
 | Rivet Roxmere 电视柜 | B07HSG5DGP | 2048 × 2048 | 7,546 |
@@ -65,3 +66,9 @@
 ## 本次装修参考（2026-10-09）
 
 用户提供的 [三维家全景](https://720.3vjia.com/S89328028?lang=zh_cn) 用于观察柜门细缝、材质层次、装饰收口及室内光线。网站全景图和模型未纳入安装包。白墙、灰色地砖、床尾毯、毛巾、书籍、开关面板、台面收边与固定接触阴影由本项目实现；浴室反射在本地场景加载后捕获一次，不包含人物或实时摄像头图像。室内仍为设计补全，并非该参考案例的完整复刻。
+
+## 1.0.7 楼梯与餐厅更新
+
+圆餐桌来自 Amazon Berkeley Objects 的 Stone & Beam Industrial Mango Wood Round Dining Table，ID B07HSBJDQP，Amazon.com, Inc.，CC BY 4.0。保留商品网格和原生 2048 × 2048 颜色、法线、粗糙度及金属度纹理；旧长桌仅作为历史资源留存，场景不再加载。资源详情见 furniture-assets.json。
+
+楼梯采用 [Poly Haven White Marble](https://polyhaven.com/a/white_marble) 的 CC0 实拍材质，颜色与粗糙度贴图均为 2048 × 2048，已本地保存。渲染时去除暖色并调成参考照片的灰色，踏面抛光、立面浅灰；几何、扶手及结构板由本项目制作。

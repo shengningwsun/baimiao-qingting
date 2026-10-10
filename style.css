@@ -34,6 +34,16 @@ body:has(#info-dialog[open]) #touch-controls{display:none!important}
 .touch dialog h2{font-size:23px;margin:5px 36px 12px 0}
 @media(max-width:600px){.help-grid{grid-template-columns:1fr}.touch dialog{padding:18px}}
 .touch:not(.ui-collapsed) #touch-controls{display:none!important}
+body:not(.touch) #settings{display:none}
+.touch:not(.ui-collapsed) header{align-items:flex-start;flex-wrap:wrap}
+.touch .top-actions{flex-wrap:wrap}
+.touch:not(.ui-collapsed) #location{display:none!important}
+.sensitivity-setting{max-width:520px;margin:18px 0}
+.sensitivity-setting label{display:flex;justify-content:space-between;align-items:center;font-size:16px}
+.sensitivity-setting output{font-weight:600;font-variant-numeric:tabular-nums}
+.sensitivity-setting input{display:block;width:100%;min-height:44px;margin:8px 0;accent-color:#214c40;touch-action:pan-x}
+.sensitivity-scale{display:flex;justify-content:space-between;font-size:12px;color:#63796f}
+#reset-sensitivity{margin-top:18px;border:1px solid #214c4040;border-radius:8px;padding:10px 16px;background:#e7ede4;min-height:44px}
 /* Safari's browser bar can change height; keep controls inside the safe area. */
 html,body,#app{height:100dvh}
 .touch #touch-controls{right:calc(25px + env(safe-area-inset-right))}
