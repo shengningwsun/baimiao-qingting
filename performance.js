@@ -22,7 +22,7 @@ export function optimizeLighting(scene){
       if(enabled){
         shader.uniforms.tourRoomMin={value:roomMin};shader.uniforms.tourRoomMax={value:roomMax};
         shader.vertexShader='varying vec3 tourWorldPosition;\n'+shader.vertexShader;
-        shader.vertexShader=shader.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\ntourWorldPosition=(modelMatrix*vec4(transformed,1.0)).xyz;');
+        shader.vertexShader=shader.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvec4 tourLocalPosition=vec4(transformed,1.0);\n#ifdef USE_INSTANCING\ntourLocalPosition=instanceMatrix*tourLocalPosition;\n#endif\ntourWorldPosition=(modelMatrix*tourLocalPosition).xyz;');
         shader.fragmentShader=`varying vec3 tourWorldPosition;uniform vec3 tourRoomMin[${rooms.length}];uniform vec3 tourRoomMax[${rooms.length}];\n`+shader.fragmentShader.replace('#include <lights_fragment_begin>',fast);
       }
     };
@@ -35,7 +35,7 @@ export function optimizeLighting(scene){
 // A static house needs no object-matrix updates between camera movements.
 export function freezeStaticScene(scene){
   scene.updateMatrixWorld(true);
-  scene.traverse(o=>{if(!o.isLight&&!o.isCamera){o.matrixAutoUpdate=false;}});
+  scene.traverse(o=>{for(let parent=o;parent;parent=parent.parent)if(parent.userData.dynamicRoot)return;if(!o.isLight&&!o.isCamera){o.matrixAutoUpdate=false;}});
   scene.matrixWorldAutoUpdate=false;
 }
 

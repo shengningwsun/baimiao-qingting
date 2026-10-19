@@ -1,6 +1,7 @@
 import * as T from './vendor/three.module.js';
 import {house,scene,mat,box,cylinder,sphere,bar,lamps,occlusionWalls,floorSurfaces} from './world.js';
 import {rounded,upholstery} from './furniture.js';
+import {registerInteraction} from './interaction-data.js';
 
 const quartz=new T.MeshStandardMaterial({color:0xdedfdc,roughness:.28});
 const pages=new T.MeshStandardMaterial({color:0xeee9df,roughness:.95});
@@ -8,6 +9,7 @@ const bookCovers=[0x4b6160,0x9a705e,0xb8afa0].map(color=>new T.MeshStandardMater
 const ceramic=new T.MeshStandardMaterial({color:0xf5f3ed,roughness:.22});
 const dark=new T.MeshStandardMaterial({color:0x646c6c,roughness:.55});
 const glow=new T.MeshStandardMaterial({color:0xfff3d6,emissive:0xffd49a,emissiveIntensity:.5,roughness:.4});lamps.push(glow);
+glow.userData.fixtureWorldPosition=[5,2.05,-4.4];
 let edgeMaterial=null;
 const mirrors=[];
 const sunlight=[];
@@ -47,6 +49,7 @@ function wallSwitch(x,z,y,facing=0){
   rounded(0,0,0,.083,.083,.012,mat.skirting,.008,parent);
   rounded(0,.002,.010,.051,.059,.009,ceramic,.004,parent);
   box(0,-.022,.016,.016,.001,.001,dark,parent);
+  registerInteraction({kind:'light',name:'房间灯',floor:y-1.14,x,z,range:1.5,height:y});
 }
 function towel(x,z,y){
   const g=new T.Group();g.position.set(x,y,z);house.add(g);
@@ -81,7 +84,8 @@ export function finishRooms(){
     }
     if(f.name.includes('卧室')){
       for(const side of [-1,1])box(x+side*(w/2-.119),f.y+.06,z,.038,.11,d-.26,mat.skirting);
-      wallSwitch(f.x0+.127,f.z0+.40,f.y+1.14,Math.PI/2);
+      // Keep the switch at the door end, clear of headboards and wardrobes.
+      wallSwitch(x-(w<3?.25:0),f.z1<0?f.z1-.125:f.z0+.125,f.y+1.14,f.z1<0?Math.PI:0);
     }
   }
   for(const y of [.45,4.05]){
@@ -89,7 +93,8 @@ export function finishRooms(){
     book(y>3?.31:-1.12,y>3?2.13:2.31,y+.485,.26,.19,0);
     book(y>3?.34:-1.10,y>3?2.12:2.31,y+.524,.23,.17,1);
   }
-  wallSwitch(2.475,3.31,1.59,-Math.PI/2);wallSwitch(-.125,-1.3,1.59,-Math.PI/2);
+  wallSwitch(2.475,3.31,1.59,-Math.PI/2);wallSwitch(.125,-1.3,1.59,Math.PI/2);
+  wallSwitch(3.825,-1.10,1.59,Math.PI/2);wallSwitch(2.475,3.31,5.19,-Math.PI/2);
   // Continuous worktop, a wipeable splashback and warm under-cabinet strips.
   rounded(6.03,.45+.947,-2.93,.79,.016,2.17,quartz,.006);
   box(6.374,.45+1.025,-2.94,.024,.15,2.12,quartz);

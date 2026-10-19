@@ -72,3 +72,12 @@
 圆餐桌来自 Amazon Berkeley Objects 的 Stone & Beam Industrial Mango Wood Round Dining Table，ID B07HSBJDQP，Amazon.com, Inc.，CC BY 4.0。保留商品网格和原生 2048 × 2048 颜色、法线、粗糙度及金属度纹理；旧长桌仅作为历史资源留存，场景不再加载。资源详情见 furniture-assets.json。
 
 楼梯采用 [Poly Haven White Marble](https://polyhaven.com/a/white_marble) 的 CC0 实拍材质，颜色与粗糙度贴图均为 2048 × 2048，已本地保存。渲染时去除暖色并调成参考照片的灰色，踏面抛光、立面浅灰；几何、扶手及结构板由本项目制作。
+
+## 1.1.0 山林与写实材质
+
+- [Grass Ground](https://polyhaven.com/a/grass_ground)：CC0 草地实拍颜色与法线，1K。
+- [Bark Brown 02](https://polyhaven.com/a/bark_brown_02)：Rob Tuytel，CC0 树皮照片，1K。
+- [Pine Tree 01](https://polyhaven.com/a/pine_tree_01)：Rico Cilliers / Rob Tuytel，CC0 针叶颜色与透明度图集，1K；仅使用照片纹理，枝干与实例化近远模型由本项目生成。
+- [Rough Linen](https://polyhaven.com/a/rough_linen)：colormass 摄影、Rico Cilliers 处理，CC0 亚麻法线与粗糙度纹理，约1K；与家具原颜色及扫描细节叠加。
+
+上述素材许可见 [Poly Haven CC0](https://polyhaven.com/license)。原家具、纹理、作者与许可保持不变；参考商品照片未打包为素材。新增简约休闲装访客及步行、坐卧姿势为本项目原创几何，无外部人物资源。

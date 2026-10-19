@@ -1,6 +1,7 @@
 import * as T from './vendor/three.module.js';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {assetPath,materialLoads,lamps} from './world.js';
+import {tuneFurnitureMaterial,realismStatus} from './realism.js';
 
 // Real product meshes from Amazon Berkeley Objects, CC BY 4.0.
 // Each self-contained GLB is decoded locally, including in the offline HTML.
@@ -31,7 +32,8 @@ function getModel(id){
         const materials=Array.isArray(o.material)?o.material:[o.material];
         for(const m of materials){
           for(const key of ['map','normalMap','roughnessMap','metalnessMap','aoMap','emissiveMap'])if(m[key])m[key].anisotropy=16;
-          if((id===furnitureIds.lamp||id===furnitureIds.ceiling)&&m.emissiveMap){m.emissive.set(0x655740);m.emissiveIntensity=.5;lamps.push(m);}
+          tuneFurnitureMaterial(m,id);
+          if((id===furnitureIds.lamp||id===furnitureIds.ceiling)&&m.emissiveMap){m.emissive.set(0x655740);m.emissiveIntensity=.5;}
         }
       });
       furnitureStatus.assets.push(id);return source;
@@ -55,6 +57,24 @@ export function realFurniture(parent,id,{w,h,d,rotation=0,name='家具'}={}){
     orient.position.set(-center.x,-bounds.min.y,-center.z);normalized.add(orient);
     holder.add(normalized);furnitureStatus.loaded++;
     holder.updateWorldMatrix(true,true);
+    if(id===furnitureIds.lamp||id===furnitureIds.ceiling){
+      // Geometry and decoded texture images stay shared. Only the few light
+      // materials are instance-owned, so a room switch cannot light every bed.
+      const copies=new Map(),fixtureWorldPosition=holder.getWorldPosition(new T.Vector3()).toArray();
+      const individual=material=>{
+        if(!material.emissiveMap)return material;
+        if(!copies.has(material)){
+          const copy=material.clone();
+          copy.userData.fixtureWorldPosition=[...fixtureWorldPosition];
+          copy.userData.fixtureProduct=id;
+          copy.userData.fixtureKind=id===furnitureIds.ceiling?'ceiling':'lamp';
+          copy.userData.fixtureHolder=holder.uuid;
+          copies.set(material,copy);lamps.push(copy);realismStatus.independentFixtures++;
+        }
+        return copies.get(material);
+      };
+      model.traverse(o=>{if(o.isMesh)o.material=Array.isArray(o.material)?o.material.map(individual):individual(o.material);});
+    }
     const world=new T.Box3().setFromObject(holder);
     furnitureStatus.instances.push({id,name,min:world.min.toArray(),max:world.max.toArray()});
   }).catch(error=>{console.error('家具加载失败',id,error);furnitureStatus.failed.push({id,message:String(error)});});

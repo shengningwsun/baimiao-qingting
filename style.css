@@ -45,6 +45,13 @@ body:not(.touch) #settings{display:none}
 .sensitivity-scale{display:flex;justify-content:space-between;font-size:12px;color:#63796f}
 #reset-sensitivity{margin-top:18px;border:1px solid #214c4040;border-radius:8px;padding:10px 16px;background:#e7ede4;min-height:44px}
 /* Safari's browser bar can change height; keep controls inside the safe area. */
+#walk-actions{display:none;position:absolute;z-index:9;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom));align-items:center;gap:8px;white-space:nowrap}
+.walking.ui-collapsed #walk-actions{display:flex}
+#walk-actions button{min-height:42px;padding:9px 15px;border:1px solid #ffffffa0;border-radius:24px;background:#f5f8eee8;color:#214c40;box-shadow:0 3px 15px #14392a22;font-size:13px;touch-action:manipulation}
+#walk-actions button[hidden]{display:none}
+#walk-actions #interact,#walk-actions #leave-pose{background:#214c40eb;color:#fff;border-color:#d5e4bf90}
+body:has(#info-dialog[open]) #walk-actions{display:none!important}
+@media(max-width:600px){#walk-actions{bottom:calc(132px + env(safe-area-inset-bottom))}#walk-actions button{padding:8px 12px;font-size:12px}}
 html,body,#app{height:100dvh}
 .touch #touch-controls{right:calc(25px + env(safe-area-inset-right))}
 @media(orientation:portrait) and (max-width:600px){

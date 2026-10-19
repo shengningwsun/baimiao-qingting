@@ -1,6 +1,7 @@
 import * as T from './vendor/three.module.js';
 import {realFurniture,furnitureIds as IDs} from './furniture-models.js';
 import {RoundedBoxGeometry} from './vendor/RoundedBoxGeometry.js';
+import {registerInteraction} from './interaction-data.js';
 import {house,mat,box,cylinder,sphere,bar,material,materialLoads,assetPath,colliders} from './world.js';
 
 // Photograph-based woven upholstery, shared by every room.
@@ -65,7 +66,13 @@ export function sofa(x,z,y,len=2.35,color=upholstery.sage,rotation=0){
   const g=furnitureGroup(x,z,y,rotation);
   colliders.push({x0:x-.45,x1:x+.45,z0:z-len/2,z1:z+len/2,y0:y,y1:y+.98});
   contactShadow(g,1.15,len+.2);
-  realFurniture(g,IDs.sofa,{w:.86,h:.95,d:len,rotation:Math.PI/2,name:'Westport 亚麻扣钉沙发'});
+  const product=realFurniture(g,IDs.sofa,{w:.86,h:.95,d:len,rotation:Math.PI/2,name:'Westport 亚麻扣钉沙发'});
+  const seat=registerInteraction({kind:'sit',name:y>3?'二楼沙发':'客厅沙发',floor:y,x,z,range:1.9,pose:{kind:'sit',position:{x:x+(rotation?-.055:.055),y:y+.56,z},yaw:rotation?Math.PI/2:-Math.PI/2}});
+  if(product.userData.ready)materialLoads.push(product.userData.ready.then(()=>{
+    g.updateWorldMatrix(true,true);const p=seat.pose.position;
+    const hit=new T.Raycaster(new T.Vector3(p.x,y+2,p.z),new T.Vector3(0,-1,0)).intersectObject(product,true)[0];
+    if(hit)p.y=hit.point.y+.025;
+  }));
   return g;
 }
 function nightstand(parent,x){
@@ -79,6 +86,13 @@ export function bed(x,z,y,cover=upholstery.sage,rotation=0){
   contactShadow(g,2.2,2.45);
   const product=realFurniture(g,IDs.bed,{w:1.78,h:1.43,d:2.26,name:'Prudence 拉扣软包床 · 枕头与床品'});
   bedThrow(g,product,cover);
+  const rest=registerInteraction({kind:'lie',name:'床上休息',floor:y,x,z,range:1.9,pose:{kind:'lie',position:{x,y:y+.65,z},yaw:rotation}});
+  // Fit the pose to the scanned mattress instead of guessing from the headboard.
+  if(product.userData.ready)materialLoads.push(product.userData.ready.then(()=>{
+    g.updateWorldMatrix(true,true);
+    const origin=g.localToWorld(new T.Vector3(0,2,0)),hit=new T.Raycaster(origin,new T.Vector3(0,-1,0)).intersectObject(product,true)[0];
+    if(hit)rest.pose.position.y=hit.point.y+.07;
+  }));
   nightstand(g,-1.11);nightstand(g,1.11);
   return g;
 }

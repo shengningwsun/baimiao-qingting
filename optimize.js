@@ -21,6 +21,7 @@ export function optimizeScene(scene){
     groups.get(key).geometries.push(geometry);
   }
   scene.traverse(o=>{
+    for(let parent=o;parent;parent=parent.parent)if(parent.userData.dynamicRoot)return;
     if(!o.isMesh||o.userData.realFurniture||o.isInstancedMesh||o.userData.lateDetail)return;
     const materials=Array.isArray(o.material)?o.material:[o.material];
     if(materials.some(m=>m.isShaderMaterial||(m.transparent&&!o.userData.staticContact)))return;
