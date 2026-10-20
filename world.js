@@ -1,8 +1,10 @@
 import * as T from './vendor/three.module.js';
+import {buildEntryDoor,buildDoorTrim} from './doors.js';
 export const scene=new T.Scene();
 export const colliders=[];
 export const occlusionWalls=[];
 export const wallJoints=[];
+export const structuralWallMeshes=[];
 export const lamps=[];
 export const house=new T.Group();scene.add(house);
 export const colors={wall:0xf4f1e8,trim:0xe7e7dd,metal:0x293635};
@@ -53,12 +55,75 @@ function piece(axis,x,z,t,y,w,h,depth,m,solid=true){
 // Exterior walls have stucco outdoors and fine white paint on the room-facing face.
 let finish=m;
 if(m===mat.wall&&solid){
-  const face=axis==='x'?(z<0?4:5):(x<0?0:1);
+  // The recessed porch returns face the opposite way to the west/east facade.
+  // Their bedroom-facing sides still need the same fine white indoor paint.
+  const porchReturn=axis==='z'&&Math.abs(Math.abs(x)-2.6)<1e-6&&z>3.5;
+  const face=axis==='x'?(z<0?4:5):porchReturn?(x<0?1:0):(x<0?0:1);
   finish=Array(6).fill(m);finish[face]=mat.interiorWall;
 }
 const o=axis==='x'?box(x+t,y,z,w,h,depth,finish,house,solid):box(x,y,z+t,depth,h,w,finish,house,solid);
+if(solid){o.userData.structuralWall={min:o.position.toArray().map((v,i)=>v-o.scale.toArray()[i]/2),max:o.position.toArray().map((v,i)=>v+o.scale.toArray()[i]/2)};structuralWallMeshes.push(o);}
 if(solid&&!m.transparent){o.userData.opaqueWall=true;const p=o.position,q=o.scale;occlusionWalls.push({axis:axis==='x'?2:0,min:[p.x-q.x/2,p.y-q.y/2,p.z-q.z/2],max:[p.x+q.x/2,p.y+q.y/2,p.z+q.z/2]});}
 return o;
+}
+// Walls are assembled from rectangular courses and opening lintels. At a T
+// junction, or where an indoor partition continues an exterior return, those
+// boxes overlap. Keep only the boundary of their union, rather than rendering
+// two white/stucco faces at exactly the same depth. No offsets or extra overlays
+// are needed, and the original collision volumes and openings remain intact.
+export function finishStructuralWallSurfaces(){
+  const epsilon=1e-7,faces=[],statistics={walls:structuralWallMeshes.length,originalFaces:0,visiblePatches:0,removedArea:0};
+  const cut=(rect,other)=>{
+    const [u0,u1,v0,v1]=rect,a=Math.max(u0,other[0]),b=Math.min(u1,other[1]),c=Math.max(v0,other[2]),d=Math.min(v1,other[3]);
+    if(b-a<=epsilon||d-c<=epsilon)return [rect];
+    const result=[];
+    if(a-u0>epsilon)result.push([u0,a,v0,v1]);
+    if(u1-b>epsilon)result.push([b,u1,v0,v1]);
+    if(c-v0>epsilon)result.push([a,b,v0,c]);
+    if(v1-d>epsilon)result.push([a,b,d,v1]);
+    return result;
+  };
+  for(let index=0;index<structuralWallMeshes.length;index++){
+    const object=structuralWallMeshes[index],bounds=object.userData.structuralWall,positions=[],normals=[],uvs=[],groups=[];
+    const omitCaps=!!object.userData.wallJoint;
+    for(let axis=0;axis<3;axis++)for(const sign of [1,-1]){
+      if(omitCaps&&axis===1)continue;
+      const materialIndex=axis*2+(sign===1?0:1),plane=sign===1?bounds.max[axis]:bounds.min[axis],u=(axis+1)%3,v=(axis+2)%3;
+      let rectangles=[[bounds.min[u],bounds.max[u],bounds.min[v],bounds.max[v]]];statistics.originalFaces++;
+      for(let otherIndex=0;otherIndex<structuralWallMeshes.length&&rectangles.length;otherIndex++){
+        if(otherIndex===index)continue;
+        const other=structuralWallMeshes[otherIndex].userData.structuralWall,outside=plane+sign*epsilon*4;
+        const coveredOutside=outside>other.min[axis]&&outside<other.max[axis];
+        const matchingFace=Math.abs(plane-(sign===1?other.max[axis]:other.min[axis]))<epsilon;
+        // For coincident outward faces the first course owns the shared part.
+        // Earlier exterior walls retain their separate indoor/outdoor finishes.
+        if(!coveredOutside&&!(matchingFace&&otherIndex<index))continue;
+        const clip=[other.min[u],other.max[u],other.min[v],other.max[v]];
+        rectangles=rectangles.flatMap(rect=>cut(rect,clip));
+      }
+      const originalArea=(bounds.max[u]-bounds.min[u])*(bounds.max[v]-bounds.min[v]);
+      statistics.removedArea+=originalArea-rectangles.reduce((sum,r)=>sum+(r[1]-r[0])*(r[3]-r[2]),0);
+      const start=positions.length/3;
+      for(const rect of rectangles){
+        statistics.visiblePatches++;faces.push({axis,sign,plane,rect,wall:index});
+        const corners=[[rect[0],rect[2]],[rect[1],rect[2]],[rect[1],rect[3]],[rect[0],rect[3]]];
+        for(const corner of (sign===1?[0,1,2,0,2,3]:[0,2,1,0,3,2])){
+          const point=[0,0,0],normal=[0,0,0];point[axis]=plane;point[u]=corners[corner][0];point[v]=corners[corner][1];normal[axis]=sign;
+          const origin=object.position.toArray(),scale=object.scale.toArray();
+          positions.push(...point.map((value,i)=>(value-origin[i])/scale[i]));normals.push(...normal);
+          uvs.push((point[u]-bounds.min[u])/(bounds.max[u]-bounds.min[u]),(point[v]-bounds.min[v])/(bounds.max[v]-bounds.min[v]));
+        }
+      }
+      if(positions.length/3>start)groups.push({start,count:positions.length/3-start,materialIndex});
+    }
+    const geometry=new T.BufferGeometry();geometry.type=omitCaps?'WallJointGeometry':'StructuralWallBoundaryGeometry';
+    geometry.setAttribute('position',new T.Float32BufferAttribute(positions,3));geometry.setAttribute('normal',new T.Float32BufferAttribute(normals,3));geometry.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));
+    for(const group of groups)geometry.addGroup(group.start,group.count,group.materialIndex);
+    if(object.geometry!==boxGeometry)object.geometry.dispose();
+    object.geometry=geometry;
+    if(!positions.length)object.removeFromParent();
+  }
+  return {...statistics,faces};
 }
 export function wall(axis,x,z,length,base,height,openings=[],depth=.2,m=mat.wall){
 const ops=[...openings].sort((a,b)=>a.t-b.t);let at=-length/2;
@@ -82,7 +147,7 @@ if(ceiling!==null&&ceiling>base+height+1e-6){
 }
 }
 function windowFrame(axis,x,z,t,y,w,h,depth){const frame=.055;for(const side of [-1,1])piece(axis,x,z,t+side*(w/2-frame/2),y+h/2,frame,h,depth+.04,mat.metal,false);for(const by of [y+frame/2,y+h-frame/2,y+h*.75])piece(axis,x,z,t,by,w,frame,depth+.04,mat.metal,false);piece(axis,x,z,t,y+h/2,frame,h,depth+.045,mat.metal,false);const glass=piece(axis,x,z,t,y+h/2,w-.08,h-.06,.014,mat.glass,false);glass.name='建筑窗户';glass.userData.architecturalWindow={axis,x:axis==='x'?x+t:x,z:axis==='z'?z+t:z,bottom:y,width:w,height:h};glass.castShadow=false;piece(axis,x,z,t,y-.05,w+.15,.09,depth+.12,mat.trim,false)}
-function doorTrim(axis,x,z,t,y,w,h,depth){for(const side of [-1,1])piece(axis,x,z,t+side*(w/2+.025),y+h/2,.07,h,depth+.05,mat.wood,false);piece(axis,x,z,t,y+h,w+.12,.07,depth+.05,mat.wood,false)}
+function doorTrim(axis,x,z,t,y,w,h,depth){buildDoorTrim(house,{axis,x:axis==='x'?x+t:x,z:axis==='z'?z+t:z,y,width:w,height:h,depth});}
 const win=(t,w=1.8,b=.8,h=2.1)=>({t,w,b,h,type:'window'});const door=(t,w=1.05,h=2.45)=>({t,w,b:0,h,type:'door'});
 function facadeReveal(axis,x,z,length,base,dy,openings,m){
 const cuts=openings.filter(o=>dy>o.b&&dy<o.b+o.h).sort((a,b)=>a.t-b.t);let at=-length/2;
@@ -136,13 +201,10 @@ for(let x=-2.6;x<=2.61;x+=.65)bar([x,4.08,5.82],[x,5.17,5.82],.022,mat.metal);fo
 colliders.push({x0:-2.8,x1:2.8,z0:5.74,z1:5.98,y0:4,y1:5.3},{x0:-2.8,x1:-2.5,z0:3.7,z1:6,y0:4,y1:5.3},{x0:2.5,x1:2.8,z0:3.7,z1:6,y0:4,y1:5.3});
 for(let i=0;i<3;i++)box(0,.075*(i+1),i===2?5.43:6.03-i*.31,3.4,.15*(i+1),i===2?.86:.9,mat.stone);
 // Open double entry doors, inviting a clear route indoors.
-for(const s of [-1,1]){const group=new T.Group();group.position.set(s*.9,.45,3.8);group.rotation.y=s*1.35;house.add(group);box(-s*.435,1.28,0,.87,2.56,.065,material(0x4c4542),group);for(const yy of [.6,1.6])box(-s*.435,yy,.04,.65,.68,.025,material(0x57504a),group);bar([-s*.72,1.12,.08],[-s*.72,1.43,.08],.017,mat.gold,group)}
+buildEntryDoor(house,{x:0,y:.45,z:3.8,width:1.8,height:2.7,name:'古铜长虹玻璃双开入户门'});
 // Kitchen M0921, hinged at the south jamb and open inward as in the plan.
-const kitchenExit=new T.Group();kitchenExit.name='厨房室外门 M0921';
-kitchenExit.userData.kitchenExteriorDoor=true;kitchenExit.position.set(6.5,.45,-1.02);house.add(kitchenExit);
-box(-.43,1.025,0,.86,2.05,.06,mat.wood,kitchenExit);
-for(const yy of [.55,1.35])box(-.43,yy,.039,.68,.54,.018,mat.wood,kitchenExit);
-bar([-.7,.93,.075],[-.7,1.13,.075],.013,mat.metal,kitchenExit);
+const kitchenExit=buildEntryDoor(house,{x:6.5,y:.45,z:-1.45,width:.9,height:2.1,axis:'z',double:false,hingeSide:-1,openAngle:Math.PI/2,name:'厨房室外门 M0921'});
+kitchenExit.userData.kitchenExteriorDoor=true;
 colliders.push({x0:5.6,x1:6.53,z0:-1.05,z1:-.98,y0:.45,y1:2.55});
 box(6.665,.235,-1.45,.33,.43,1.12,mat.stone);
 box(6.99,.135,-1.45,.32,.27,1.12,mat.stone);

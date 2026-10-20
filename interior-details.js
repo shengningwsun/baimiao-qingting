@@ -90,8 +90,8 @@ export function finishRooms(){
   }
   for(const y of [.45,4.05]){
     bathAccessories(-5.3,.1,y,1);bathAccessories(5.3,.1,y,-1);
-    book(y>3?.31:-1.12,y>3?2.13:2.31,y+.485,.26,.19,0);
-    book(y>3?.34:-1.10,y>3?2.12:2.31,y+.524,.23,.17,1);
+    book(y>3?.15:-.88,y>3?2.13:2.31,y+.485,.26,.19,0);
+    book(y>3?.18:-.86,y>3?2.12:2.31,y+.524,.23,.17,1);
   }
   wallSwitch(2.475,3.31,1.59,-Math.PI/2);wallSwitch(.125,-1.3,1.59,Math.PI/2);
   wallSwitch(3.825,-1.10,1.59,Math.PI/2);wallSwitch(2.475,3.31,5.19,-Math.PI/2);

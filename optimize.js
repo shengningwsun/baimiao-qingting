@@ -1,9 +1,11 @@
 import * as T from './vendor/three.module.js';
 import {mergeGeometries} from './vendor/BufferGeometryUtils.js';
+import {finishStructuralWallSurfaces} from './world.js';
 
 // Batch the exact same material, including individual painted/stucco wall faces.
 // Distinct normal/roughness maps and custom shaders must never be conflated.
 export function optimizeScene(scene){
+  finishStructuralWallSurfaces();
   scene.updateMatrixWorld(true);
   const groups=new Map(),original=[];
   function add(geometry,material,object){

@@ -64,10 +64,10 @@ export function contactShadow(parent,w,d){
 function furnitureGroup(x,z,y,rotation=0){const g=new T.Group();g.position.set(x,y,z);g.rotation.y=rotation;house.add(g);return g}
 export function sofa(x,z,y,len=2.35,color=upholstery.sage,rotation=0){
   const g=furnitureGroup(x,z,y,rotation);
-  colliders.push({x0:x-.45,x1:x+.45,z0:z-len/2,z1:z+len/2,y0:y,y1:y+.98});
+  const collision={x0:x-.45,x1:x+.45,z0:z-len/2,z1:z+len/2,y0:y,y1:y+.98};colliders.push(collision);
   contactShadow(g,1.15,len+.2);
   const product=realFurniture(g,IDs.sofa,{w:.86,h:.95,d:len,rotation:Math.PI/2,name:'Westport 亚麻扣钉沙发'});
-  const seat=registerInteraction({kind:'sit',name:y>3?'二楼沙发':'客厅沙发',floor:y,x,z,range:1.9,pose:{kind:'sit',position:{x:x+(rotation?-.055:.055),y:y+.56,z},yaw:rotation?Math.PI/2:-Math.PI/2}});
+  const seat=registerInteraction({kind:'sit',name:y>3?'二楼沙发':'客厅沙发',seatType:'sofa',collision,floor:y,x,z,range:1.9,pose:{kind:'sit',position:{x:x+(rotation?-.055:.055),y:y+.56,z},yaw:rotation?Math.PI/2:-Math.PI/2}});
   if(product.userData.ready)materialLoads.push(product.userData.ready.then(()=>{
     g.updateWorldMatrix(true,true);const p=seat.pose.position;
     const hit=new T.Raycaster(new T.Vector3(p.x,y+2,p.z),new T.Vector3(0,-1,0)).intersectObject(product,true)[0];
@@ -86,7 +86,8 @@ export function bed(x,z,y,cover=upholstery.sage,rotation=0){
   contactShadow(g,2.2,2.45);
   const product=realFurniture(g,IDs.bed,{w:1.78,h:1.43,d:2.26,name:'Prudence 拉扣软包床 · 枕头与床品'});
   bedThrow(g,product,cover);
-  const rest=registerInteraction({kind:'lie',name:'床上休息',floor:y,x,z,range:1.9,pose:{kind:'lie',position:{x,y:y+.65,z},yaw:rotation}});
+  const collision=colliders.find(c=>Number.isFinite(c.x0)&&Math.abs(c.y0-y)<.02&&Math.abs((c.x0+c.x1)/2-x)<.02&&Math.abs((c.z0+c.z1)/2-z)<.02);
+  const rest=registerInteraction({kind:'lie',name:'床上休息',collision,floor:y,x,z,range:1.9,pose:{kind:'lie',position:{x,y:y+.65,z},yaw:rotation}});
   // Fit the pose to the scanned mattress instead of guessing from the headboard.
   if(product.userData.ready)materialLoads.push(product.userData.ready.then(()=>{
     g.updateWorldMatrix(true,true);
@@ -144,8 +145,14 @@ export function curtains(x,z,y,width=1.8,facing=0,top=2.72,bottom=.06){
 export function diningChair(x,z,y,angle=0){
   const g=furnitureGroup(x,z,y,angle);contactShadow(g,.72,.75);
   const halfW=(Math.abs(Math.cos(angle))*.54+Math.abs(Math.sin(angle))*.57)/2,halfD=(Math.abs(Math.sin(angle))*.54+Math.abs(Math.cos(angle))*.57)/2;
-  colliders.push({x0:x-halfW,x1:x+halfW,z0:z-halfD,z1:z+halfD,y0:y,y1:y+.93});
-  realFurniture(g,IDs.chair,{w:.54,h:.93,d:.57,rotation:Math.PI,name:'Rivet 曲面软包餐椅'});
+  const collision={x0:x-halfW,x1:x+halfW,z0:z-halfD,z1:z+halfD,y0:y,y1:y+.93};colliders.push(collision);
+  const product=realFurniture(g,IDs.chair,{w:.54,h:.93,d:.57,rotation:Math.PI,name:'Rivet 曲面软包餐椅'});
+  const seat=registerInteraction({kind:'sit',seatType:'chair',name:y>3?'阳台椅子':'餐椅',collision,floor:y,x,z,range:1.35,pose:{kind:'sit',position:{x:x-Math.sin(angle)*.035,y:y+.48,z:z-Math.cos(angle)*.035},yaw:angle}});
+  if(product.userData.ready)materialLoads.push(product.userData.ready.then(()=>{
+    g.updateWorldMatrix(true,true);const p=seat.pose.position;
+    const hit=new T.Raycaster(new T.Vector3(p.x,y+1.4,p.z),new T.Vector3(0,-1,0)).intersectObject(product,true)[0];
+    if(hit)p.y=hit.point.y+.025;
+  }));
   return g;
 }
 export function diningTable(x,z,y,diameter=1.4){

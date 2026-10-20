@@ -85,6 +85,13 @@ export function createVisitor(scene,{colliders=[]}={}){
   // A narrow collar ring is shared geometry, not a texture or alpha surface.
   const collar=part(rig,'夹克领边',ring,materials.seam,[0,.49,0],[.067,.067,.067]);collar.rotation.x=Math.PI/2;
 
+  // The chest can lean over planted feet and the pelvis while sitting down.
+  // Keep the pants and hip pivots outside this group; rotating a whole rigid
+  // figure would lift both shoes and push the knees through a seat.
+  const chest=new T.Group();chest.name='上身动作枢轴';
+  for(const child of [...rig.children])if(child.name!=='裤腰'&&!legs.some(leg=>leg.hip===child))chest.add(child);
+  rig.add(chest);
+
   // Analytic soft contact shadow: one tiny quad, no bitmap, no extra shadow map.
   const shadowMaterial=new T.ShaderMaterial({transparent:true,depthWrite:false,
     vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
@@ -97,50 +104,83 @@ export function createVisitor(scene,{colliders=[]}={}){
   const geometrySet=new Set(meshes.map(m=>m.geometry));
   const stats={triangles:meshes.reduce((n,m)=>n+(m.geometry.index?.count??m.geometry.attributes.position.count)/3,0),
     meshes:meshes.length,geometries:geometrySet.size,materials:Object.keys(materials).length+1,
-    cameraDistance:0,obstructed:false,shoulderFallback:false,pose:'stand',view:'first',moving:false};
+    cameraDistance:0,obstructed:false,shoulderFallback:false,pose:'stand',view:'first',moving:false,animating:false};
   let phase=0,lastPose='stand';
   const anchor=new T.Vector3(),focus=new T.Vector3(),desired=new T.Vector3(),candidate=new T.Vector3();
-  const direction=new T.Vector3(),offset=new T.Vector3();
+  const direction=new T.Vector3(),offset=new T.Vector3(),rightAxis=new T.Vector3(1,0,0);
+  const cameraHistory=new WeakMap(),nextCamera=new T.Vector3(),travel=new T.Vector3();
   const sweepMin=new Float64Array(3),sweepMax=new Float64Array(3);
   const valid=v=>Number.isFinite(v)?v:0;
+  const clamp=v=>T.MathUtils.clamp(valid(v),0,1);
+  function shape(state){
+    const pose=state.pose,weights=pose?.shape;
+    let sit=weights?clamp(weights.sit):pose?.kind==='sit'?1:0;
+    let lie=weights?clamp(weights.lie):pose?.kind==='lie'?1:0;
+    const total=sit+lie;if(total>1){sit/=total;lie/=total;}
+    const stand=Math.max(0,1-sit-lie),transition=pose?.transition;
+    const progress=clamp(transition?.progress),envelope=transition?Math.sin(progress*Math.PI):0;
+    const action=transition?.phase;
+    const lean=action==='lower'?-.19*envelope:action==='rise'?-.24*envelope:action==='recline'?-.10*envelope:action==='reach'?-.035*envelope:0;
+    return {sit,lie,stand,lean,envelope,action,transition,
+      height:.9-.785*sit-.79*lie,roll:Math.PI/2*lie,
+      bodyYaw:pose?.bodyYaw??((pose?.yaw??state.yaw??0)+Math.PI*lie)};
+  }
   function setAnchor(state){
     const p=state.pose?.position;
     anchor.set(valid(p?.x??state.position?.x),valid(p?.y??state.feet),valid(p?.z??state.position?.z));
   }
   function eyePoint(state,out){
-    setAnchor(state);const kind=state.pose?.kind;
-    if(kind==='sit'){out.copy(anchor);out.y+=.81;return out;}
-    if(kind==='lie'){
-      offset.set(0,.235,-.63).applyAxisAngle(T.Object3D.DEFAULT_UP,state.pose?.yaw??state.yaw??0);
-      return out.copy(anchor).add(offset);
-    }
-    return out.copy(state.position);
+    setAnchor(state);
+    if(!state.pose)return out.copy(state.position);
+    const s=shape(state);
+    // Blend the head with the same pelvis, chest and recline transforms as the
+    // figure. The reference points preserve the original stable seat/bed eyes,
+    // so finishing or starting a transition cannot move the lens in one frame.
+    offset.set(0,.72-.025*s.sit-.09*s.lie,-.125*s.lie);
+    offset.applyAxisAngle(rightAxis,s.roll+s.lean);
+    offset.y+=s.height;offset.applyAxisAngle(T.Object3D.DEFAULT_UP,s.bodyYaw);
+    return out.copy(anchor).add(offset);
   }
   function update(state={}){
-    const kind=state.pose?.kind??'stand';setAnchor(state);
-    const moving=!!(state.mode==='walk'&&state.moving&&kind!=='sit'&&kind!=='lie');
+    const kind=state.pose?.kind??'stand',s=shape(state);setAnchor(state);
+    const gait=state.pose?clamp(state.pose.gait??(s.action==='approach'||s.action==='leave'?1:0)):state.moving?1:0;
+    const moving=state.mode==='walk'&&gait>.001&&s.stand>.001;
     if(moving)phase+=Math.min(.05,Math.max(0,state.dt??0))*(state.sprinting?11.2:8.4);
     group.visible=state.mode==='walk'&&state.view==='third';
-    contactShadow.visible=kind==='stand';
-    group.position.copy(anchor);group.rotation.set(0,(state.pose?.yaw??state.yaw??0)+(kind==='lie'?Math.PI:0),0);
-    rig.position.set(0,kind==='stand'?.9:kind==='sit'?.115:.11,0);
-    rig.rotation.set(kind==='lie'?Math.PI/2:0,0,0);
-    if(moving){rig.position.y+=Math.abs(Math.sin(phase))* .018;rig.rotation.x=state.sprinting?-.045:-.02;}
+    contactShadow.visible=s.stand>.98;
+    group.position.copy(anchor);group.rotation.set(0,s.bodyYaw,0);
+    rig.position.set(0,s.height,0);rig.rotation.set(s.roll,0,0);chest.rotation.set(s.lean,0,0);
+    if(moving){rig.position.y+=Math.abs(Math.sin(phase))*.018*gait*s.stand;chest.rotation.x+=(state.sprinting?-.045:-.02)*gait*s.stand;}
+    head.rotation.x=-.10*s.envelope*(s.action==='recline'||s.action==='rise'?1:0);
+    const brace=['lower','recline','rise'].includes(s.action)?s.envelope:0;
     for(const {side,arm,elbow} of arms){
-      arm.rotation.set(kind==='sit'?.48:moving?-side*Math.sin(phase)*.42:kind==='lie'?.04:.025,0,side*.075);
-      elbow.rotation.x=kind==='sit'?-.9:moving?-.14:kind==='lie'?.01:-.08;
+      const swing=moving?-side*Math.sin(phase)*.42*gait*s.stand:0;
+      const relaxed=.48*s.sit+.04*s.lie+.025*s.stand+swing;
+      arm.rotation.set(T.MathUtils.lerp(relaxed,-.46,brace*.88),0,side*(.075+.06*brace));
+      elbow.rotation.x=T.MathUtils.lerp(-.9*s.sit+.01*s.lie+(-.08-(moving?.06:0))*s.stand,-.30,brace*.80);
+      if(s.action==='reach'&&side===1){
+        // A single right-hand press peaks at the same midpoint at which the
+        // interaction controller toggles the light, then returns to the side.
+        arm.rotation.x=T.MathUtils.lerp(arm.rotation.x,1.42,s.envelope);
+        elbow.rotation.x=T.MathUtils.lerp(elbow.rotation.x,-.24,s.envelope);
+      }
     }
+    // During recline, lift the heels over the mattress edge before extending
+    // the knees. A plain sit/lie rotation blend drags both shoes through the
+    // bed front at the halfway pose. Reversing this curve lowers feet only
+    // after the torso has sat back up, so getting out follows the same arc.
+    const legLift=Math.sin(Math.PI*s.lie)*(s.sit+s.lie);
     for(const {side,hip,knee,foot} of legs){
-      hip.rotation.x=kind==='sit'?Math.PI/2-.12:moving?side*Math.sin(phase)*(state.sprinting?.58:.43):0;
-      knee.rotation.x=kind==='sit'?-Math.PI/2+.12:moving?-Math.max(0,-side*Math.sin(phase))*.68:0;
+      hip.rotation.x=(Math.PI/2-.12)*s.sit+.08*legLift+(moving?side*Math.sin(phase)*(state.sprinting?.58:.43)*gait*s.stand:0);
+      knee.rotation.x=(-Math.PI/2+.12)*s.sit+.78*legLift+(moving?-Math.max(0,-side*Math.sin(phase))*.68*gait*s.stand:0);
       foot.rotation.x=0;
     }
     if(kind!==lastPose){phase=0;lastPose=kind;}
-    stats.pose=kind;stats.view=state.view??'first';stats.moving=!!moving;
+    stats.pose=kind;stats.view=state.view??'first';stats.moving=!!moving;stats.animating=!!s.transition;
     // The house disables scene.matrixWorldAutoUpdate. Explicitly refresh the
     // dynamic hierarchy so animation remains correct without touching the house.
     group.updateMatrixWorld(true);
-    return moving;
+    return moving||!!s.transition;
   }
   function distanceBeforeWall(start,end){
     direction.copy(end).sub(start);const length=direction.length();if(length<1e-6)return 0;
@@ -161,30 +201,58 @@ export function createVisitor(scene,{colliders=[]}={}){
       // Do not lock the camera inside that solid; all other walls still block it.
       if(hit&&!inside&&far>=0&&near>=0)fraction=Math.min(fraction,near);
     }
-    return Math.max(.035,length*fraction-.035);
+    return fraction<1?Math.max(.035,length*fraction-.035):length;
   }
   function applyCamera(camera,state={}){
     const view=state.view??'first',yaw=state.yaw??0,pitch=state.pitch??0;
     if(camera.near!==.12){camera.near=.12;camera.updateProjectionMatrix();}
     if(view!=='third'){
+      cameraHistory.delete(camera);
       eyePoint(state,camera.position);camera.rotation.set(pitch,yaw,0,'YXZ');
       stats.cameraDistance=0;stats.obstructed=stats.shoulderFallback=false;
       camera.updateMatrixWorld(true);return false;
     }
-    eyePoint(state,focus);focus.y-=state.pose?.kind==='lie'?0:state.pose?.kind==='sit'?.08:.21;
-    const nominal=state.pose?.kind==='lie'?2.0:2.2;
+    const s=shape(state);eyePoint(state,focus);focus.y-=.21*s.stand+.08*s.sit;
+    const prior=cameraHistory.get(camera),history=prior&&prior.anchor.distanceTo(anchor)<.65&&camera.position.distanceToSquared(prior.position)<1e-12?prior:null;
+    const controlled=!!state.pose||!!history?.held;
+    const dt=Math.min(.05,Math.max(0,state.dt??0));
+    // A furniture action keeps its clear shoulder direction while the figure
+    // turns, rather than jumping between the longest left/right camera rays.
+    // After settling, store that shoulder relative to the look yaw. Looking
+    // around therefore starts at the exact final angle of the action.
+    const motion=!!state.pose?.transition;
+    const quiet=history&&controlled&&!motion&&(history.motion||!state.moving&&Math.abs(yaw-history.yaw)<1e-8&&Math.abs(pitch-history.pitch)<1e-8&&focus.distanceToSquared(history.focus)<1e-12);
+    if(quiet){
+      // Finish at the clear, actual shoulder reached by the action. This is a
+      // settled camera, not an unfinished interpolation waiting for idle frames:
+      // another hundred no-input updates leave its position exactly unchanged.
+      camera.position.copy(history.position);camera.lookAt(focus);camera.updateMatrixWorld(true);
+      stats.cameraDistance=camera.position.distanceTo(focus);stats.obstructed=history.obstructed;stats.shoulderFallback=history.shoulderFallback;
+      const angle=Math.atan2(camera.position.x-focus.x,camera.position.z-focus.z);
+      cameraHistory.set(camera,{...history,anchor:anchor.clone(),focus:focus.clone(),angle,
+        offset:Math.atan2(Math.sin(angle-yaw),Math.cos(angle-yaw)),radius:stats.cameraDistance,yaw,pitch,motion:false});
+      return false;
+    }
+    const baseAngle=history&&controlled?(motion?history.angle:yaw+history.offset):yaw;
+    const naturalDistance=2.2-.2*s.lie;
+    const nominal=history&&controlled&&!motion&&!state.moving?Math.min(naturalDistance,history.radius):naturalDistance;
     function pointAtAngle(angle,out){
       out.set(Math.sin(angle)*Math.cos(pitch),-Math.sin(pitch),Math.cos(angle)*Math.cos(pitch)).multiplyScalar(nominal).add(focus);
       out.y=T.MathUtils.clamp(out.y,anchor.y+.25,anchor.y+3.15);return out;
     }
-    pointAtAngle(yaw,desired);let free=distanceBeforeWall(focus,desired),best=free;
+    pointAtAngle(baseAngle,desired);let free=distanceBeforeWall(focus,desired),best=free;
     const originalBlocked=free<desired.distanceTo(focus)-.04;stats.shoulderFallback=false;
     // Tight passages prefer a clear shoulder view to putting the lens in a wall
     // or inside the visitor's head. The stored visitor yaw never changes here.
-    if(free<(state.pose?.kind==='sit'?1.15:.85)){
-      for(const angle of [yaw-.7,yaw+.7,yaw-1.1,yaw+1.1,yaw-1.55,yaw+1.55,yaw-2.1,yaw+2.1]){
+    if(free<(.85+.3*s.sit)){
+      const angles=history&&controlled?Array.from({length:40},(_,i)=>baseAngle+(i%2?1:-1)*(.08*(1+Math.floor(i/2)))):[yaw-.7,yaw+.7,yaw-1.1,yaw+1.1,yaw-1.55,yaw+1.55,yaw-2.1,yaw+2.1];
+      for(const angle of angles){
         pointAtAngle(angle,candidate);const available=distanceBeforeWall(focus,candidate);
         if(available>best+.08){best=available;desired.copy(candidate);stats.shoulderFallback=true;}
+        // The first adequate neighbour is the smallest turn away from the
+        // previous shoulder. Extra clearance on the far side is not a reason
+        // to teleport across the room.
+        if(history&&controlled&&available>=.95+.2*s.sit)break;
       }
       if(best<.62){
         // At a closed corner a short overhead view still shows the visitor;
@@ -198,8 +266,36 @@ export function createVisitor(scene,{colliders=[]}={}){
       free=best;
     }
     direction.copy(desired).sub(focus);const ideal=direction.length();
-    camera.position.copy(focus).addScaledVector(direction.normalize(),Math.min(free,ideal));camera.lookAt(focus);
+    nextCamera.copy(focus).addScaledVector(direction.normalize(),Math.min(free,ideal));
+    if(history&&controlled&&motion){
+      // Bound actual lens travel, including a changing occlusion result. Sweep
+      // the lens along that short path as well as along the focus ray, so a
+      // continuous reposition never cuts through a wall or a tall backrest.
+      // This bound belongs only to scripted actions. Ordinary walking follows
+      // the player at full speed; seated/lying look input also responds in full,
+      // without accumulating a camera lag after an interaction has finished.
+      travel.copy(nextCamera).sub(history.position);const length=travel.length(),step=4*dt;
+      if(length>step&&length>1e-8)nextCamera.copy(history.position).addScaledVector(travel,step/length);
+      const path=nextCamera.distanceTo(history.position);
+      if(path>1e-6){
+        const clear=distanceBeforeWall(history.position,nextCamera);
+        if(clear<path)nextCamera.copy(history.position).addScaledVector(travel.copy(nextCamera).sub(history.position).normalize(),clear);
+      }
+      // A held camera must remain outside the figure when the approach passes
+      // close to the previous lens location. Normal actions start well beyond
+      // this small exclusion sphere; this only corrects the near-contact case.
+      travel.copy(nextCamera).sub(focus);
+      if(travel.length()<.64){
+        if(travel.length()<1e-6)travel.set(Math.sin(baseAngle),.2,Math.cos(baseAngle));
+        nextCamera.copy(focus).addScaledVector(travel.normalize(),.64);
+      }
+    }
+    camera.position.copy(nextCamera);camera.lookAt(focus);
     camera.updateMatrixWorld(true);stats.cameraDistance=camera.position.distanceTo(focus);stats.obstructed=originalBlocked||free<ideal-.04;
+    const actualAngle=Math.atan2(camera.position.x-focus.x,camera.position.z-focus.z);
+    cameraHistory.set(camera,{anchor:anchor.clone(),focus:focus.clone(),position:camera.position.clone(),angle:actualAngle,
+      offset:Math.atan2(Math.sin(actualAngle-yaw),Math.cos(actualAngle-yaw)),radius:stats.cameraDistance,held:controlled,
+      yaw,pitch,motion,obstructed:stats.obstructed,shoulderFallback:stats.shoulderFallback});
     return false; // Immediate follow needs no battery-consuming idle frames.
   }
   update({position:new T.Vector3(0,1.62,0),feet:0,mode:'orbit',view:'first'});
