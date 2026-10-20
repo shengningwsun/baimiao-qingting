@@ -1,7 +1,10 @@
 import * as T from './vendor/three.module.js';
 import {buildEntryDoor,buildDoorTrim} from './doors.js';
+import {createDoorSystem} from './door-motion.js';
 export const scene=new T.Scene();
 export const colliders=[];
+export const doorSystem=createDoorSystem({colliders});
+export const roomDoors=doorSystem.doors;
 export const occlusionWalls=[];
 export const wallJoints=[];
 export const structuralWallMeshes=[];
@@ -147,7 +150,33 @@ if(ceiling!==null&&ceiling>base+height+1e-6){
 }
 }
 function windowFrame(axis,x,z,t,y,w,h,depth){const frame=.055;for(const side of [-1,1])piece(axis,x,z,t+side*(w/2-frame/2),y+h/2,frame,h,depth+.04,mat.metal,false);for(const by of [y+frame/2,y+h-frame/2,y+h*.75])piece(axis,x,z,t,by,w,frame,depth+.04,mat.metal,false);piece(axis,x,z,t,y+h/2,frame,h,depth+.045,mat.metal,false);const glass=piece(axis,x,z,t,y+h/2,w-.08,h-.06,.014,mat.glass,false);glass.name='建筑窗户';glass.userData.architecturalWindow={axis,x:axis==='x'?x+t:x,z:axis==='z'?z+t:z,bottom:y,width:w,height:h};glass.castShadow=false;piece(axis,x,z,t,y-.05,w+.15,.09,depth+.12,mat.trim,false)}
-function doorTrim(axis,x,z,t,y,w,h,depth){buildDoorTrim(house,{axis,x:axis==='x'?x+t:x,z:axis==='z'?z+t:z,y,width:w,height:h,depth});}
+function doorTrim(axis,x,z,t,y,w,h,depth){
+  const px=axis==='x'?x+t:x,pz=axis==='z'?z+t:z,level=y>3?'二楼':'一楼';
+  const balcony=y>3&&Math.abs(pz-3.8)<1e-6,entry=y<1&&Math.abs(pz-3.8)<1e-6;
+  const outside=axis==='z'&&Math.abs(px-6.5)<1e-6;
+  const bathroom=axis==='z'&&Math.abs(Math.abs(px)-4.1)<1e-6;
+  const kitchen=axis==='z'&&Math.abs(px-3.7)<1e-6;
+  const dining=axis==='x'&&w>1.9&&!entry&&!balcony;
+  const category=entry?'entry':outside?'exterior':balcony?'balcony':bathroom?'bathroom':kitchen?'kitchen':dining?'dining':'bedroom';
+  let name,hingeSide=1,openAngle=Math.PI/2;
+  if(entry){name='古铜实心双开入户门';openAngle=1.48;}
+  else if(outside){name='厨房室外门 M0921';hingeSide=-1;}
+  else if(balcony){name='二楼阳台双开门';openAngle=-1.50;}
+  else if(bathroom){name=level+(px<0?'西侧卫生间门':'东侧卫生间门');hingeSide=-1;openAngle=px<0?Math.PI/2:-Math.PI/2;}
+  else if(kitchen){name='一楼厨房内门';openAngle=-Math.PI/2;}
+  else if(dining){name='一楼餐厅双开门';openAngle=1.48;}
+  else{
+    name=level+(pz>0?'前侧':'后侧')+(px<0?'左卧室门':px<2.8?'中卧室门':'右卧室门');
+    openAngle=pz>0?-Math.PI/2:Math.PI/2;
+    // South bedrooms open away from their beds; the north-east bedroom uses
+    // its outer jamb to stay clear of the partition that meets the inner jamb.
+    hingeSide=px>2.8&&pz>0?-1:1;
+  }
+  buildDoorTrim(house,{axis,x:px,z:pz,y,width:w,height:h,depth});
+  const root=buildEntryDoor(house,{axis,x:px,z:pz,y,width:w,height:h,depth,double:entry||balcony||dining,hingeSide,openAngle,name});
+  if(outside)root.userData.kitchenExteriorDoor=true;
+  doorSystem.register(root,{axis,x:px,z:pz,y,width:w,height:h,name,category,open:!['bedroom','bathroom'].includes(category)});
+}
 const win=(t,w=1.8,b=.8,h=2.1)=>({t,w,b,h,type:'window'});const door=(t,w=1.05,h=2.45)=>({t,w,b:0,h,type:'door'});
 function facadeReveal(axis,x,z,length,base,dy,openings,m){
 const cuts=openings.filter(o=>dy>o.b&&dy<o.b+o.h).sort((a,b)=>a.t-b.t);let at=-length/2;
@@ -200,12 +229,8 @@ for(const xx of [-2.68,2.68]){box(xx,2.04,4.12,.23,3.15,.42,mat.wall);box(xx,.85
 for(let x=-2.6;x<=2.61;x+=.65)bar([x,4.08,5.82],[x,5.17,5.82],.022,mat.metal);for(const y of [4.42,4.79,5.17]){bar([-2.6,y,5.82],[2.6,y,5.82],.025,mat.metal);bar([-2.6,y,3.8],[-2.6,y,5.82],.025,mat.metal);bar([2.6,y,3.8],[2.6,y,5.82],.025,mat.metal)}
 colliders.push({x0:-2.8,x1:2.8,z0:5.74,z1:5.98,y0:4,y1:5.3},{x0:-2.8,x1:-2.5,z0:3.7,z1:6,y0:4,y1:5.3},{x0:2.5,x1:2.8,z0:3.7,z1:6,y0:4,y1:5.3});
 for(let i=0;i<3;i++)box(0,.075*(i+1),i===2?5.43:6.03-i*.31,3.4,.15*(i+1),i===2?.86:.9,mat.stone);
-// Open double entry doors, inviting a clear route indoors.
-buildEntryDoor(house,{x:0,y:.45,z:3.8,width:1.8,height:2.7,name:'古铜长虹玻璃双开入户门'});
-// Kitchen M0921, hinged at the south jamb and open inward as in the plan.
-const kitchenExit=buildEntryDoor(house,{x:6.5,y:.45,z:-1.45,width:.9,height:2.1,axis:'z',double:false,hingeSide:-1,openAngle:Math.PI/2,name:'厨房室外门 M0921'});
-kitchenExit.userData.kitchenExteriorDoor=true;
-colliders.push({x0:5.6,x1:6.53,z0:-1.05,z1:-.98,y0:.45,y1:2.55});
+// Doorway registration above builds each animated leaf exactly once, including
+// the south-hinged kitchen exit. Its collision follows the current hinge angle.
 box(6.665,.235,-1.45,.33,.43,1.12,mat.stone);
 box(6.99,.135,-1.45,.32,.27,1.12,mat.stone);
 box(7.31,.05,-1.45,.32,.1,1.12,mat.stone);

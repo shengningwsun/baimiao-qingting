@@ -1,15 +1,20 @@
 import * as T from './vendor/three.module.js';
 import {interactionTargets} from './interaction-data.js';
-import {lamps,occlusionWalls,colliders} from './world.js';
+import {lamps,occlusionWalls,colliders,doorSystem} from './world.js';
 import {blocked,surfaceHeight} from './navigation.js';
 import {makeFurniturePlan,sampleMotion,standingFrame} from './interaction-motion.js';
 
-function clearSight(a,b){
+function clearSight(a,b,ignoreDoorId=null){
   const delta=new T.Vector3(b.x-a.x,b.y-a.y,b.z-a.z),length=delta.length();
   if(length<.02)return true;const ray=new T.Ray(new T.Vector3(a.x,a.y,a.z),delta.divideScalar(length)),hit=new T.Vector3();
   for(const w of occlusionWalls){
     const box=new T.Box3(new T.Vector3(...w.min),new T.Vector3(...w.max));
     if(ray.intersectBox(box,hit)&&hit.distanceTo(ray.origin)<length-.16)return false;
+  }
+  for(const c of colliders){
+    if(!c.dynamicDoor||c.roomDoorId===ignoreDoorId)continue;
+    const box=new T.Box3(new T.Vector3(c.x0,c.y0,c.z0),new T.Vector3(c.x1,c.y1,c.z1));
+    if(ray.intersectBox(box,hit)&&hit.distanceTo(ray.origin)<length-.025)return false;
   }
   return true;
 }
@@ -44,12 +49,15 @@ export function createInteractions({getState,enterPose,leavePose,stopInput,showT
         if(!clearSight(state.position,point))continue;
         nearby=item;best=distance;
       }
+      const door=doorSystem.nearest({position:state.position,feet:state.feet},1.65);
+      if(door&&door.distance<best&&clearSight(state.position,{x:door.x,y:door.floor+1.05,z:door.z},door.id))nearby=door;
     }
     action.hidden=!nearby;
+    action.disabled=!!nearby?.motion;
     if(nearby){
       const light=nearby.kind==='light'?closestLight(nearby.x,nearby.z,nearby.floor):null;
-      const label=nearby.kind==='sit'?(nearby.seatType==='chair'?'坐椅子':'坐沙发'):nearby.kind==='lie'?'躺下休息':enabled.get(light?.uuid)===false?'打开电灯':'关闭电灯';
-      action.textContent=label;action.setAttribute('aria-label',label);action.dataset.target=nearby.id;
+      const label=nearby.kind==='door'?(nearby.motion?(nearby.target>.5?'正在开门…':'正在关门…'):nearby.target>.5?'关门':'开门'):nearby.kind==='sit'?(nearby.seatType==='chair'?'坐椅子':'坐沙发'):nearby.kind==='lie'?'躺下休息':enabled.get(light?.uuid)===false?'打开电灯':'关闭电灯';
+      action.textContent=label;action.setAttribute('aria-label',nearby.kind==='door'?label+' · '+nearby.name:label);action.dataset.target=nearby.id;
     }
     exitButton.hidden=!active||active.kind==='light'||state.mode!=='walk'||state.blocked;
     exitButton.disabled=!!animation;
@@ -78,6 +86,10 @@ export function createInteractions({getState,enterPose,leavePose,stopInput,showT
   function interact(){
     if(animation||active)return false;
     update();if(!nearby)return false;const item=nearby;
+    if(item.kind==='door'){
+      stopInput();const state=getState(),changed=doorSystem.toggle(item,{position:state.position,feet:state.feet,radius:.19});
+      showToast(changed?(item.target>.5?'正在打开':'正在关闭')+item.name:doorSystem.lastNotice);update();requestRender();return changed;
+    }
     if(item.kind==='light'){
       const light=closestLight(item.x,item.z,item.floor);if(!light)return false;
       const frame=standingFrame(getState(),'stand');let toggled=false;active=item;currentPose=frame;stopInput();

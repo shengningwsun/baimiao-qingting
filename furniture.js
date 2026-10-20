@@ -205,21 +205,21 @@ export function kitchen(y){
   fixture(IDs.kitchenBase,6.03,-3.36,y,{w:.78,h:.94,d:1.24,rotation:-Math.PI/2,name:'Country Kitchen 木纹台面与双门地柜'});
   fixture(IDs.range,5.57,-4.44,y,{w:1.06,h:.94,d:.78,name:'Country Kitchen 六炉头灶与双烤箱'});
   fixture(IDs.kitchenDrawers,6.03,-2.31,y,{w:.78,h:.94,d:.86,rotation:-Math.PI/2,name:'Country Kitchen 抽屉地柜与台面'});
-  fixture(IDs.fridge,4.29,-1.45,y,{w:.67,h:1.48,d:.7,name:'家用冰箱 · 门封与金属门把手'});
+  fixture(IDs.fridge,4.29,-3.15,y,{w:.67,h:1.48,d:.7,name:'家用冰箱 · 门封与金属门把手'});
   fixture(IDs.kitchenUpper,4.5,-4.68,y+1.67,{w:1.13,h:.66,d:.32,name:'Country Kitchen 双门吊柜'});
   fixture(IDs.kitchenUpper,5.65,-4.71,y+2.46,{w:1.05,h:.63,d:.26,name:'Country Kitchen 双门吊柜'});
   fixture(IDs.hood,5.57,-4.54,y+1.75,{w:.9,h:.17,d:.54,name:'不锈钢抽油烟机 · 滤网与控制键'});
   fixture(IDs.espresso,6.02,-3.17,y+.95,{w:.32,h:.28,d:.45,rotation:-Math.PI/2,name:'双头意式咖啡机 · 蒸汽管与接水盘'});
   fixture(IDs.riceCooker,6.02,-2.27,y+.95,{w:.28,h:.26,d:.37,rotation:-Math.PI/2,name:'电饭煲 · 显示屏与开盖按键'});
-  colliders.push({x0:3.91,x1:6.1,z0:-4.83,z1:-4.04,y0:y,y1:y+1.1},{x0:5.63,x1:6.43,z0:-3.98,z1:-1.88,y0:y,y1:y+1},{x0:3.95,x1:4.63,z0:-1.8,z1:-1.1,y0:y,y1:y+1.5});
+  colliders.push({x0:3.91,x1:6.1,z0:-4.83,z1:-4.04,y0:y,y1:y+1.1},{x0:5.63,x1:6.43,z0:-3.98,z1:-1.88,y0:y,y1:y+1},{x0:3.95,x1:4.63,z0:-3.5,z1:-2.8,y0:y,y1:y+1.5});
 }
 export function bathFixtures(x,z,y,side){
   const basinX=x+side*.43,toiletX=x-side*.72;
   fixture(IDs.toilet,toiletX,z-.24,y,{w:.46,h:.75,d:.69,name:'陶瓷坐便器 · 水箱、冲水柄与曲面座圈'});
-  fixture(IDs.vanity,basinX,z-.49,y+.17,{w:.62,h:.56,d:.45,name:'AmazonBasics 白橡木双门浴室柜'});
-  fixture(IDs.basin,basinX,z-.46,y+.7,{w:.63,h:.32,d:.47,name:'陶瓷洗手盆 · 排水口与金属混合龙头'});
+  fixture(IDs.vanity,basinX,z-.56,y+.17,{w:.62,h:.56,d:.45,name:'AmazonBasics 白橡木双门浴室柜'});
+  fixture(IDs.basin,basinX,z-.53,y+.7,{w:.63,h:.32,d:.47,name:'陶瓷洗手盆 · 排水口与金属混合龙头'});
   fixture(IDs.mirror,basinX,z-.72,y+1.26,{w:.72,h:.65,d:.035,name:'Rivet 胡桃木框浴室镜'});
-  colliders.push({x0:toiletX-.23,x1:toiletX+.23,z0:z-.59,z1:z+.105,y0:y,y1:y+.76},{x0:basinX-.32,x1:basinX+.32,z0:z-.72,z1:z-.23,y0:y,y1:y+1.04});
+  colliders.push({x0:toiletX-.23,x1:toiletX+.23,z0:z-.59,z1:z+.105,y0:y,y1:y+.76},{x0:basinX-.32,x1:basinX+.32,z0:z-.79,z1:z-.30,y0:y,y1:y+1.04});
 }
 export function ceilingFixture(x,z,y,r=.32){
   fixture(IDs.ceiling,x,z,y+3.12,{w:r*2,h:.2,d:r*2,name:'Ravenna 织物灯罩与金属吸顶灯'});

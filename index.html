@@ -1,13 +1,54 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><meta name="theme-color" content="#163b36"><meta name="description" content="一座两层乡间住宅与开阔的院落。自由漫游房屋、阳台与庭院。"><title>白庙晴庭 · 3D 房屋漫游</title><link rel="icon" type="image/png" href="./icons/icon-192.png"><link rel="stylesheet" href="./style.css"><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icons/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="白庙晴庭"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></head>
 <body class="ui-collapsed"><main id="app"><canvas id="world" aria-label="可交互的三维房屋与庭院" tabindex="0"></canvas>
-<header><div class="brand"><span class="brand-mark">庭</span><div><strong>白庙晴庭</strong><span>HOUSE & GARDEN</span></div><i></i><div class="project-label">两层乡居 · 实景漫游<small>13 × 10 m / 双层住宅</small></div></div><div class="top-actions"><button id="light" title="切换日光与黄昏">☀ <span>晴日</span></button><button id="quality" title="切换画质">精细画质</button><button id="install-app" title="安装或保存离线">↓</button><button id="update-app" title="检查软件更新" hidden>检查更新</button><button id="share-app" title="分享漫游">↗</button><button id="settings" title="调整视角滑动灵敏度">灵敏度</button><button id="help" title="操作说明">?</button><button id="fullscreen" title="全屏">⛶</button></div></header>
+<header><div class="brand"><strong>白庙晴庭</strong></div></header>
 <div id="location"><span id="location-dot"></span><span id="location-text">庭院全景</span><small id="floor-text">室外</small></div>
-<aside id="map-panel" class="glass"><div class="map-heading"><span>空间导览</span><div><button data-map="0" class="active">1F</button><button data-map="1">2F</button><button id="map-toggle" aria-label="收起导览图">−</button></div></div><canvas id="minimap" width="460" height="390" aria-label="房屋平面导览图，点击房间前往"></canvas><div class="map-caption">点击房间前往 <span>▲ 当前位置</span></div></aside>
-<nav id="places" class="glass" aria-label="快速前往"><span class="nav-label">前往</span><button data-place="garden" class="active">庭院</button><button data-place="living">客厅</button><button data-place="dining">餐厨</button><button data-place="upstairs">二楼</button><button data-place="balcony">阳台</button><button data-place="forest">山林</button></nav>
-<div id="bottom"><div id="controls" class="glass"><button id="orbit" class="active">◉ <span>建筑观赏</span></button><button id="walk">♧ <span>自由步行</span></button><div class="divider"></div><button id="plans">▱ <span>原始图纸</span></button><button id="home" title="回到初始视角">⌂</button></div><div id="hint">拖动旋转 · 滚轮缩放</div></div>
+<section id="settings-menu" role="dialog" aria-modal="true" aria-labelledby="menu-title" aria-hidden="true">
+  <div class="menu-sheet">
+    <div class="menu-heading"><div><span class="menu-kicker">白庙晴庭</span><h1 id="menu-title">漫游设置</h1></div><span class="menu-session">两层乡居 <i></i> 离线漫游</span></div>
+    <nav class="menu-tabs" role="tablist" aria-label="设置分类" aria-orientation="vertical">
+      <button id="tab-explore" role="tab" aria-selected="true" aria-controls="panel-explore" data-menu-tab="explore"><span>01</span>漫游与导览</button>
+      <button id="tab-display" role="tab" aria-selected="false" aria-controls="panel-display" tabindex="-1" data-menu-tab="display"><span>02</span>画面与天气</button>
+      <button id="tab-controls" role="tab" aria-selected="false" aria-controls="panel-controls" tabindex="-1" data-menu-tab="controls"><span>03</span>操作设置</button>
+      <button id="tab-about" role="tab" aria-selected="false" aria-controls="panel-about" tabindex="-1" data-menu-tab="about"><span>04</span>资料与更新</button>
+    </nav>
+    <div class="menu-content top-actions">
+      <div id="panel-explore" class="menu-panel" role="tabpanel" aria-labelledby="tab-explore" tabindex="0">
+        <h2>漫游与导览</h2><p class="menu-description">选择参观方式，或直接前往想看的空间。</p>
+        <div class="menu-explore-grid"><div>
+          <div id="bottom"><span class="menu-label">参观方式</span><div id="controls"><button id="walk">自由步行</button><button id="orbit">建筑观赏</button></div><div id="hint">拖动旋转 · 滚轮缩放</div></div>
+          <span class="menu-label">快速前往</span><nav id="places" aria-label="快速前往"><button data-place="garden" class="active">庭院</button><button data-place="living">客厅</button><button data-place="dining">餐厨</button><button data-place="upstairs">二楼</button><button data-place="balcony">阳台</button><button data-place="forest">山林</button></nav>
+          <button id="home" class="menu-text-button" title="回到庭院全景">↗ 回到庭院全景</button>
+        </div><aside id="map-panel"><div class="map-heading"><span>空间导览</span><div><button data-map="0" class="active">1F</button><button data-map="1">2F</button><button id="map-toggle" aria-label="展开或收起导览图">+</button></div></div><canvas id="minimap" width="460" height="390" aria-label="房屋平面导览图，点击房间前往"></canvas><div class="map-caption">点击房间前往 <span>▲ 当前位置</span></div></aside></div>
+      </div>
+      <div id="panel-display" class="menu-panel" role="tabpanel" aria-labelledby="tab-display" tabindex="0" hidden>
+        <h2>画面与天气</h2><p class="menu-description">调整后立即生效，返回漫游即可查看效果。</p>
+        <div class="setting-row"><div><strong>画面质量</strong><p>流畅适合手机；写实增加渲染精度与光影。</p></div><button id="quality" title="切换画质">流畅画质</button></div>
+        <div class="setting-row"><div><strong>天气与时间</strong><p>在晴日、黄昏与夜晚之间切换。</p></div><button id="light" title="切换晴日、黄昏与夜晚">☀ 晴日</button></div>
+        <div class="setting-row" id="fullscreen-row"><div><strong>全屏显示</strong><p>让房屋占满当前屏幕。</p></div><button id="fullscreen" title="全屏显示">切换全屏</button></div>
+        <div class="menu-note">家具和材质使用相同的高清资源。每次启动默认流畅画质。</div>
+      </div>
+      <div id="panel-controls" class="menu-panel" role="tabpanel" aria-labelledby="tab-controls" tabindex="0" hidden>
+        <h2>操作设置</h2><p class="menu-description">找到适合自己的视角速度，设置自动保存在本机。</p>
+        <div class="setting-row"><div><strong>步行视角</strong><p>第一人称参观，或第三人称查看人物动作。</p></div><select id="menu-perspective" aria-label="步行视角"><option value="first">第一人称</option><option value="third">第三人称</option></select></div>
+        <div class="setting-row sensitivity-row"><div><label for="menu-sensitivity">滑动灵敏度</label><p>数值越高，相同距离的滑动转得越快。</p></div><div class="menu-slider"><output id="menu-sensitivity-value" for="menu-sensitivity">115%</output><input id="menu-sensitivity" type="range" min="50" max="200" step="5" value="115" aria-label="滑动灵敏度"><div class="menu-slider-scale"><span>50%</span><button id="menu-reset-sensitivity">恢复 115%</button><span>200%</span></div></div></div>
+        <div class="setting-row"><div><strong>行走速度</strong><p>右下角加速按钮可在行走时随时切换。</p></div><span class="setting-value">普通 1.5× <i>/</i> 加速 3×</span></div>
+        <div class="menu-inline-actions"><button id="help" title="查看手机版操作帮助">? 操作帮助</button><button id="settings" title="查看灵敏度详细说明">灵敏度说明</button></div>
+      </div>
+      <div id="panel-about" class="menu-panel" role="tabpanel" aria-labelledby="tab-about" tabindex="0" hidden>
+        <h2>资料与更新</h2><p class="menu-description">查看原始设计图，把这座房屋分享给亲友。</p>
+        <div class="setting-row"><div><strong>原始设计图</strong><p>一层、二层平面图与房屋外观参考。</p></div><button id="plans">查看图纸</button></div>
+        <div class="setting-row"><div><strong>分享白庙晴庭</strong><p>安卓分享安装包；网页版分享安装网址。</p></div><button id="share-app" title="分享漫游">↗ 分享</button></div>
+        <div class="setting-row" id="install-row"><div><strong>保存到手机</strong><p>添加到主屏幕，保存后可离线参观。</p></div><button id="install-app" title="安装或保存离线">保存到手机</button></div>
+        <div class="setting-row" id="update-row"><div><strong>软件更新</strong><p>联网打开时自动检查，也可在这里手动检查。</p></div><button id="update-app" title="检查软件更新" hidden>检查更新</button></div>
+        <div class="menu-note">白庙晴庭 · 1.1.2<span>房屋可离线参观，下载新版需要联网。</span></div>
+      </div>
+    </div>
+    <div class="menu-footer"><span id="menu-footer-hint">选择分类查看选项</span><button id="menu-resume">返回漫游 <span>↵</span></button></div>
+  </div>
+</section>
 <div id="crosshair" hidden></div><div id="toast" role="status"></div><div id="touch-controls" hidden><div id="joystick" aria-label="行走摇杆"><span></span></div><button id="sprint" type="button" aria-label="开启步行加速" aria-pressed="false">加速 <span>1.5×</span></button><div class="touch-look">拖动右侧转动视角</div></div>
 <div id="walk-actions" aria-label="人物与家具操作"><button id="perspective" type="button" title="切换第一／第三人称（V）">第一人称</button><button id="interact" type="button" hidden></button><button id="leave-pose" type="button" hidden>起身</button></div>
 <dialog id="info-dialog"><button class="close" aria-label="关闭">×</button><div id="dialog-content"></div></dialog>
 <div id="loading" role="status" aria-live="polite">正在加载高清家具…</div><div id="fatal" hidden><h2>暂时无法开启 3D 画面</h2><p>请使用支持 WebGL 2 的新版浏览器，并开启硬件加速。</p><button id="retry-scene">重新尝试</button></div>
-<div id="offline-status" role="status" hidden></div><button id="menu-toggle" aria-label="展开或收起操作菜单" aria-expanded="false" aria-controls="places controls map-panel">☰ 菜单</button></main><script type="module" src="./app.js"></script><script src="./mobile-shell.js"></script></body></html>
+<div id="offline-status" role="status" hidden></div><button id="menu-toggle" aria-label="展开或收起操作菜单" aria-expanded="false" aria-controls="settings-menu" aria-haspopup="dialog">☰ 菜单</button></main><script type="module" src="./app.js"></script><script src="./mobile-shell.js"></script></body></html>

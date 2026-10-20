@@ -80,7 +80,9 @@ function bathroom(x,z,y,side){
 }
 export function buildInteriors(){
 for(let f=0;f<2;f++){const y=.45+f*3.6;
-wall('x',-4.55,-.8,3.9,y,3.36,[D(1.15)]);wall('x',4.55,-.8,3.9,y,3.36,f?[D(-1.15)]:[]);
+wall('x',-4.55,-.8,3.9,y,3.36,[D(1.15)]);
+if(f)wall('x',4.55,-.8,3.9,y,3.36,[D(-1.15)]);
+else wall('x',5.1,-.8,2.8,y,3.36,[]); // The dining wall owns x0..3.7, including its complete door opening.
 wall('x',-4.55,1,3.9,y,3.36,[D(1.15)]);wall('x',4.55,1,3.9,y,3.36,[D(-1.15)]);
 wall('z',-2.6,3,4,y,3.36);wall('z',2.6,3,4,y,3.36);
 wall('z',-4.1,.1,1.8,y,3.36,[D(0,.86,2.2)]);wall('z',4.1,.1,1.8,y,3.36,[D(0,.86,2.2)]);

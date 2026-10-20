@@ -8,16 +8,44 @@
   document.body.classList.toggle('app-native', native);
   document.body.classList.toggle('app-installed', installed);
   const menu = document.getElementById('menu-toggle');
+  const menuScreen=document.getElementById('settings-menu');
+  const tabs=[...document.querySelectorAll('[data-menu-tab]')];
+  let selectedTab='explore',previousFocus=null;
+  function selectTab(name,focus=false){
+    selectedTab=name;
+    for(const tab of tabs){const selected=tab.dataset.menuTab===name;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;document.getElementById(tab.getAttribute('aria-controls')).hidden=!selected;if(selected&&focus)tab.focus();}
+    document.querySelector('.menu-content').scrollTop=0;
+  }
+  for(const tab of tabs){
+    tab.onclick=()=>selectTab(tab.dataset.menuTab);
+    tab.onkeydown=event=>{if(!['ArrowDown','ArrowUp','ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const index=tabs.indexOf(tab),next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(['ArrowDown','ArrowRight'].includes(event.key)?1:-1)+tabs.length)%tabs.length;selectTab(tabs[next].dataset.menuTab,true);};
+  }
   function setMenu(open) {
+    const wasOpen=!document.body.classList.contains('ui-collapsed');
+    if(open&&!wasOpen)previousFocus=document.activeElement;
     document.body.classList.toggle('ui-collapsed', !open);
     menu.setAttribute('aria-expanded', String(open));
     menu.textContent = open ? '× 收起' : '☰ 菜单';
-    if(open) window.dispatchEvent(new Event('blur'));
+    menuScreen.setAttribute('aria-hidden',String(!open));
+    for(const id of ['world','touch-controls','walk-actions'])document.getElementById(id).inert=open;
+    if(open){window.dispatchEvent(new Event('blur'));if(!wasOpen)tabs.find(tab=>tab.dataset.menuTab===selectedTab)?.focus({preventScroll:true});}
+    else if(wasOpen&&!document.getElementById('info-dialog').open){(previousFocus?.isConnected?previousFocus:menu).focus({preventScroll:true});}
+    window.dispatchEvent(new CustomEvent('tourmenuchange',{detail:{open}}));
   }
   setMenu(false);
   menu.onclick = () => setMenu(document.body.classList.contains('ui-collapsed'));
+  document.getElementById('menu-resume').onclick=()=>setMenu(false);
+  document.addEventListener('keydown',event=>{
+    if(document.body.classList.contains('ui-collapsed')||document.getElementById('info-dialog').open)return;
+    if(event.key==='Escape'){event.preventDefault();setMenu(false);return;}
+    if(event.key!=='Tab')return;
+    const items=[...menuScreen.querySelectorAll('button:not([disabled]):not([tabindex="-1"]),select,input,[tabindex="0"]'),menu].filter(el=>!el.hidden&&el.getClientRects().length);
+    const first=items[0],last=items.at(-1);
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
+    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+  });
   document.addEventListener('click', event => {
-    if(event.composedPath().some(node=>node instanceof Element && node.matches('#places button,#orbit,#walk,#plans,#home,#help,#quality,#light,#settings,#share-app,#update-app,#install-app,#minimap'))) setMenu(false);
+    if(event.composedPath().some(node=>node instanceof Element && node.matches('#places button,#orbit,#walk,#plans,#home,#help,#settings,#share-app,#update-app,#install-app,#minimap'))) setMenu(false);
   });
   document.getElementById('world').addEventListener('pointerdown',()=>setMenu(false));
   const updateButton = document.getElementById('update-app');
