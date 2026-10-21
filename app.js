@@ -15,7 +15,9 @@ import {createVisitor} from './visitor.js';
 import {applyArchitecturalRealism} from './realism.js';
 import {createInteractions} from './interactions.js';
 import {setupMenuSettings} from './menu-settings.js';
+import {createLoadingProgress} from './loading-progress.js';
 const $=id=>document.getElementById(id);let renderer;
+const loadingProgress=createLoadingProgress($('loading'));
 const landscape=createLandscape();
 scene.add(landscape.group);colliders.push(...landscape.colliders);materialLoads.push(landscape.ready);
 const visitor=createVisitor(scene,{colliders});
@@ -144,19 +146,23 @@ interactions=createInteractions({getState:walkState,stopInput,showToast,requestR
 $('perspective').onclick=()=>setView(view==='first'?'third':'first');
 setupMenuSettings({getView:()=>view,setView(next){if(mode!=='walk')setMode('walk');return setView(next);},requestRender});
 setLight(false);setMode('walk');drawMap();requestRender();
-Promise.all([...materialLoads,hdrReady]).then(async()=>{
-  $('loading').textContent='正在准备高清画面…';
+loadingProgress.track([...materialLoads,hdrReady]).then(async()=>{
+  loadingProgress.update(72,'正在准备高清画面','正在配置室内灯光','lighting');
   lightingOptimization=optimizeLighting(scene);
   setLight(lightMode);
-  await prepareInteriorReflections(renderer);
+  await new Promise(resolve=>setTimeout(resolve,0));
+  await prepareInteriorReflections(renderer,(done,total)=>loadingProgress.update(73+7*done/Math.max(1,total),'正在准备高清画面',`室内反射 ${done} / ${total}`,'reflections'));
   setReflectionLighting(lightMode);
-  await warmResources(renderer,scene,camera);
+  await warmResources(renderer,scene,camera,progress=>{
+    if(progress.phase==='textures')loadingProgress.update(80+16*progress.completed/Math.max(1,progress.total),'正在准备高清画面',`高清贴图 ${progress.completed} / ${progress.total}`,'textures');
+    else loadingProgress.update(progress.completed?99:97,'正在准备高清画面',progress.completed?'正在完成画面':'正在编译光影效果','shaders');
+  });
   globalThis.__releaseEmbeddedAssets?.();
   freezeStaticScene(scene);wallCulling=createWallCulling(scene);renderStats.ready=true;
   renderer.shadowMap.needsUpdate=true;requestRender();
   if(furnitureStatus.failed.length)showToast('部分家具加载失败，请刷新页面重试');
-  $('loading')?.remove();
-});
+  await loadingProgress.finish();
+}).catch(error=>{console.error('画面准备失败',error);loadingProgress.fail(error);});
 // Read-only diagnostics and deterministic viewpoints for local visual verification.
-globalThis.__tour={scene,camera,renderer,furnitureStatus,landscape,visitor,interactions,doorSystem,setView,get view(){return view},get player(){return {x:position.x,y:position.y,z:position.z,feet,yaw,pitch}},details:detailStatus,performance:renderStats,get lighting(){return lightMode},get culling(){return wallCulling?.stats},setLightingOptimization(enabled){lightingOptimization?.setEnabled(enabled);requestRender();},setCulling(enabled){if(wallCulling){wallCulling.stats.enabled=enabled;requestRender();}},goTo,setLight,inspect(x,z,y,yawValue=0,pitchValue=-.25){goTo({x,z,y,yaw:yawValue,pitch:pitchValue,name:'室内参观'});}};
+globalThis.__tour={scene,camera,renderer,loading:loadingProgress.state,furnitureStatus,landscape,visitor,interactions,doorSystem,setView,get view(){return view},get player(){return {x:position.x,y:position.y,z:position.z,feet,yaw,pitch}},details:detailStatus,performance:renderStats,get lighting(){return lightMode},get culling(){return wallCulling?.stats},setLightingOptimization(enabled){lightingOptimization?.setEnabled(enabled);requestRender();},setCulling(enabled){if(wallCulling){wallCulling.stats.enabled=enabled;requestRender();}},goTo,setLight,inspect(x,z,y,yawValue=0,pitchValue=-.25){goTo({x,z,y,yaw:yawValue,pitch:pitchValue,name:'室内参观'});}};
 if(document.modelContext?.registerTool){const life=new AbortController();for(const tool of [{name:'navigate_house',title:'前往房间或庭院',description:'Move the tour visitor to a named area of this house.',inputSchema:{type:'object',properties:{place:{type:'string',enum:Object.keys(places)}},required:['place'],additionalProperties:false},annotations:{readOnlyHint:false},execute(input){if(!input||!Object.hasOwn(places,input.place))throw Error('Unknown place');return goTo(input.place)}},{name:'set_house_lighting',title:'切换晴日、黄昏或夜晚',description:'Change the lighting of the current house tour.',inputSchema:{type:'object',properties:{lighting:{type:'string',enum:lightingCycle}},required:['lighting'],additionalProperties:false},annotations:{readOnlyHint:false},execute(input){return setLight(lightingMode(input?.lighting))}}]){try{Promise.resolve(document.modelContext.registerTool(tool,{signal:life.signal})).catch(()=>{})}catch{}}window.addEventListener('pagehide',()=>life.abort(),{once:true})}

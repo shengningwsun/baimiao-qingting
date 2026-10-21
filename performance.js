@@ -92,14 +92,18 @@ export function createWallCulling(scene){
 
 // Upload every original-resolution texture and compile all material variants
 // before the visitor moves indoors. Yield between uploads for touch/UI events.
-export async function warmResources(renderer,scene,camera){
+export async function warmResources(renderer,scene,camera,onProgress=()=>{}){
   const textures=new Set();
   scene.traverse(o=>{
     if(!o.material)return;
     for(const m of Array.isArray(o.material)?o.material:[o.material])
       for(const value of Object.values(m))if(value?.isTexture)textures.add(value);
   });
-  for(const texture of textures){renderer.initTexture(texture);await new Promise(r=>setTimeout(r,0));}
+  let done=0;onProgress({phase:'textures',completed:0,total:textures.size});
+  for(const texture of textures){renderer.initTexture(texture);onProgress({phase:'textures',completed:++done,total:textures.size});await new Promise(r=>setTimeout(r,0));}
+  onProgress({phase:'shaders',completed:0,total:1});
+  await new Promise(r=>setTimeout(r,0));
   if(renderer.compileAsync)await renderer.compileAsync(scene,camera);
   else renderer.compile(scene,camera);
+  onProgress({phase:'shaders',completed:1,total:1});
 }

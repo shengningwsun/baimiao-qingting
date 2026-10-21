@@ -122,3 +122,32 @@ export function buildEntryDoor(parent,{x=0,y=0,z=0,width=1.8,height=2.7,axis='x'
   group.doorLeaves=group.children.filter(child=>child.userData.referenceDoorLeaf);
   return group;
 }
+
+let slidingFinishes;
+export function buildSlidingDoor(parent,{x=0,y=0,z=0,width,height,axis='x',name='玻璃推拉门'}={}){
+  slidingFinishes??={frame:new T.MeshStandardMaterial({name:'推拉门深色铝框',color:0x354139,roughness:.36,metalness:.62}),glass:new T.MeshStandardMaterial({name:'清透安全玻璃',color:0xd2e3de,roughness:.12,metalness:.05,transparent:true,opacity:.20,depthWrite:false,side:T.DoubleSide,envMapIntensity:.8})};
+  const group=root(parent,{x,y,z,axis,name}),m=slidingFinishes;
+  group.userData.referenceEntryDoor={width,height,axis,double:true,sliding:true};group.doorLeaves=[];group.fixedDoorPanels=[];
+  // Four panels on two separate tracks: the inner pair slide left/right onto
+  // the outer pair. Nothing rotates into the dining furniture or the balcony.
+  const panelWidth=width/4-.006,panelHeight=height-.035,stile=.034,rail=.044;
+  for(const side of [-1,1])for(const moving of [false,true]){
+    const panel=new T.Group(),center=side*width*(moving?1:3)/8;
+    panel.name=(moving?'活动':'固定')+(side<0?'左':'右')+'玻璃门扇';panel.position.set(center,.012,moving?.033:-.033);group.add(panel);
+    const data={motionType:'slide',width:panelWidth,height:panelHeight,thickness:.04,closedX:center,closedZ:panel.position.z,slideX:moving?side*width/4:0,openAngle:0,closedAngle:0,direction:1,glass:true};
+    panel.userData.slidingDoorPanel=data;
+    if(moving){panel.userData.referenceDoorLeaf=data;group.doorLeaves.push(panel);}else group.fixedDoorPanels.push(panel);
+    const pieces=[];
+    function railPart(label,px,py,pz,w,h,d){const mesh=block(panel,label,px,py,pz,w,h,d,m.frame);mesh.updateMatrix();const geometry=mesh.geometry.clone();geometry.applyMatrix4(mesh.matrix);pieces.push(geometry);panel.remove(mesh);}
+    for(const sign of [-1,1]){railPart('推拉门竖框',sign*(panelWidth-stile)/2,panelHeight/2,0,stile,panelHeight,.04);railPart('推拉门横框',0,sign<0?rail/2:panelHeight-rail/2,0,panelWidth-2*stile,rail,.04);}
+    if(moving)for(const face of [-1,1])railPart('推拉门拉手',-side*(panelWidth/2-.065),panelHeight*.49,face*.038,.018,.30,.035);
+    const merged=pieces.map(g=>{if(!g.index)return g;const n=g.toNonIndexed();g.dispose();return n;});
+    const metal=new T.Mesh(mergeGeometries(merged,false),m.frame);metal.name='推拉门框与拉手';metal.castShadow=metal.receiveShadow=true;panel.add(metal);merged.forEach(g=>g.dispose());
+    const glass=new T.Mesh(new T.PlaneGeometry(panelWidth-2*stile,panelHeight-2*rail),m.glass);glass.position.y=panelHeight/2;glass.name='推拉门透明玻璃';glass.userData.slidingDoorGlass=true;glass.castShadow=false;glass.receiveShadow=true;panel.add(glass);
+    data.drawCalls=2;
+  }
+  // The thin tracks stand above the floor instead of sharing its surface.
+  block(group,'推拉门上导轨',0,height-.008,0,width,.016,.115,m.frame);
+  block(group,'推拉门下导轨',0,.007,0,width,.008,.115,m.frame);
+  return group;
+}

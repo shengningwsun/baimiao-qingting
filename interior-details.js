@@ -112,14 +112,16 @@ export function finishRooms(){
 }
 
 // Capture each bathroom once, after the real furniture loads. No per-frame reflection render.
-export async function prepareInteriorReflections(renderer){
+export async function prepareInteriorReflections(renderer,onProgress=()=>{}){
   scene.updateMatrixWorld(true);for(const m of mirrors)m.visible=false;
   try{
+    let completed=0;onProgress(completed,mirrors.length);
     for(const mirror of mirrors){
       const target=new T.WebGLCubeRenderTarget(128,{type:T.HalfFloatType});
       const probe=new T.CubeCamera(.08,8,target);probe.position.copy(mirror.position);probe.position.z+=.10;
       probe.update(renderer,scene);mirror.material.envMap=target.texture;mirror.material.needsUpdate=true;
       mirror.userData.reflectionTarget=target;detailStatus.mirrorProbes++;
+      onProgress(++completed,mirrors.length);
       await new Promise(resolve=>setTimeout(resolve,0));
     }
   }finally{for(const mirror of mirrors)mirror.visible=true;}

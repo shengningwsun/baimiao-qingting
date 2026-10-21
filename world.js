@@ -1,5 +1,5 @@
 import * as T from './vendor/three.module.js';
-import {buildEntryDoor,buildDoorTrim} from './doors.js';
+import {buildEntryDoor,buildDoorTrim,buildSlidingDoor} from './doors.js';
 import {createDoorSystem} from './door-motion.js';
 export const scene=new T.Scene();
 export const colliders=[];
@@ -161,10 +161,10 @@ function doorTrim(axis,x,z,t,y,w,h,depth){
   let name,hingeSide=1,openAngle=Math.PI/2;
   if(entry){name='古铜实心双开入户门';openAngle=1.48;}
   else if(outside){name='厨房室外门 M0921';hingeSide=-1;}
-  else if(balcony){name='二楼阳台双开门';openAngle=-1.50;}
+  else if(balcony){name='二楼阳台玻璃推拉门';}
   else if(bathroom){name=level+(px<0?'西侧卫生间门':'东侧卫生间门');hingeSide=-1;openAngle=px<0?Math.PI/2:-Math.PI/2;}
   else if(kitchen){name='一楼厨房内门';openAngle=-Math.PI/2;}
-  else if(dining){name='一楼餐厅双开门';openAngle=1.48;}
+  else if(dining){name='一楼餐厅玻璃推拉门';}
   else{
     name=level+(pz>0?'前侧':'后侧')+(px<0?'左卧室门':px<2.8?'中卧室门':'右卧室门');
     openAngle=pz>0?-Math.PI/2:Math.PI/2;
@@ -173,7 +173,7 @@ function doorTrim(axis,x,z,t,y,w,h,depth){
     hingeSide=px>2.8&&pz>0?-1:1;
   }
   buildDoorTrim(house,{axis,x:px,z:pz,y,width:w,height:h,depth});
-  const root=buildEntryDoor(house,{axis,x:px,z:pz,y,width:w,height:h,depth,double:entry||balcony||dining,hingeSide,openAngle,name});
+  const root=balcony||dining?buildSlidingDoor(house,{axis,x:px,z:pz,y,width:w,height:h,name}):buildEntryDoor(house,{axis,x:px,z:pz,y,width:w,height:h,depth,double:entry,hingeSide,openAngle,name});
   if(outside)root.userData.kitchenExteriorDoor=true;
   doorSystem.register(root,{axis,x:px,z:pz,y,width:w,height:h,name,category,open:!['bedroom','bathroom'].includes(category)});
 }

@@ -3,12 +3,12 @@ const smooth=t=>t*t*(3-2*t),clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 // Split a rotated leaf into short collision boxes. A single bounding box for a
 // diagonal leaf would incorrectly close the whole corner of a small room.
 function leafBoxes(door,leaf,progress){
-  const data=leaf.userData.referenceDoorLeaf,direction=data.direction??-Math.sign(leaf.position.x),width=data.width;
+  const data=leaf.userData.referenceDoorLeaf??leaf.userData.slidingDoorPanel,direction=data.direction??-Math.sign(leaf.position.x),width=data.width,sliding=data.motionType==='slide';
   const angle=(data.closedAngle??0)+(data.openAngle??leaf.userData.restAngle)*progress;
   const cos=Math.cos(angle),sin=Math.sin(angle),rootAngle=door.axis==='z'?Math.PI/2:0,rc=Math.cos(rootAngle),rs=Math.sin(rootAngle);
   const thickness=data.thickness??.064,segments=Math.max(1,Math.ceil(width/.12)),boxes=[];
   const point=(x,z)=>{
-    const lx=leaf.position.x+cos*x+sin*z,lz=-sin*x+cos*z;
+    const lx=(sliding?data.closedX+data.slideX*progress:leaf.position.x)+cos*x+sin*z,lz=(sliding?data.closedZ:0)-sin*x+cos*z;
     return [door.x+rc*lx+rs*lz,door.z-rs*lx+rc*lz];
   };
   const rectangle=(x0,x1,z0,z1)=>{
@@ -16,11 +16,11 @@ function leafBoxes(door,leaf,progress){
     return {x0:Math.min(...corners.map(p=>p[0])),x1:Math.max(...corners.map(p=>p[0])),z0:Math.min(...corners.map(p=>p[1])),z1:Math.max(...corners.map(p=>p[1])),y0:door.y,y1:door.y+data.height,roomDoorId:door.id,dynamicDoor:true};
   };
   for(let i=0;i<segments;i++){
-    const a=direction*width*i/segments,b=direction*width*(i+1)/segments;
+    const a=sliding?-width/2+width*i/segments:direction*width*i/segments,b=sliding?-width/2+width*(i+1)/segments:direction*width*(i+1)/segments;
     boxes.push(rectangle(Math.min(a,b),Math.max(a,b),-thickness/2,thickness/2));
   }
   // The long pulls project beyond the panel on both faces.
-  const handleX=direction*(width-.115);
+  const handleX=sliding?-Math.sign(data.closedX)*(width/2-.065):direction*(width-.115);
   boxes.push(rectangle(handleX-.017,handleX+.017,-.101,.101));
   return boxes;
 }
@@ -36,7 +36,7 @@ function overlapsPlayer(box,player){
 export function createDoorSystem({colliders}){
   const doors=[];
   let lastNotice='';
-  function boxesAt(door,progress){return door.leaves.flatMap(leaf=>leafBoxes(door,leaf,progress));}
+  function boxesAt(door,progress){return [...door.leaves,...door.fixedPanels].flatMap(leaf=>leafBoxes(door,leaf,progress));}
   function hitsPlayer(door,from,to,player){
     if(!player)return false;
     const p=player.position??player,y=Number.isFinite(player.feet)?player.feet:p.y;
@@ -53,7 +53,8 @@ export function createDoorSystem({colliders}){
     else for(let i=0;i<boxes.length;i++)Object.assign(door.colliders[i],boxes[i]);
     for(const leaf of door.leaves){
       const data=leaf.userData.referenceDoorLeaf;
-      leaf.rotation.y=(data.closedAngle??0)+(data.openAngle??leaf.userData.restAngle)*door.progress;
+      if(data.motionType==='slide'){leaf.position.x=data.closedX+data.slideX*door.progress;leaf.position.z=data.closedZ;}
+      else leaf.rotation.y=(data.closedAngle??0)+(data.openAngle??leaf.userData.restAngle)*door.progress;
       leaf.updateMatrix();
     }
     // The scene is frozen after startup. Updating just this dynamic subtree
@@ -66,7 +67,7 @@ export function createDoorSystem({colliders}){
   function register(root,{x,z,y,width,height,axis='x',name='房门',open=false,category='room'}={}){
     const leaves=root.doorLeaves??root.children.filter(child=>child.userData.referenceDoorLeaf);
     if(!leaves.length)throw Error('Door has no hinged leaves: '+name);
-    const door={kind:'door',id:'door-'+doors.length,name,x,z,y,floor:y,width,height,axis,category,root,leaves,colliders:[],progress:open?1:0,target:open?1:0,isOpen:open,opening:false,duration:.82,blocked:false};
+    const door={kind:'door',id:'door-'+doors.length,name,x,z,y,floor:y,width,height,axis,category,root,leaves,fixedPanels:root.fixedDoorPanels??[],sliding:!!root.fixedDoorPanels,colliders:[],progress:open?1:0,target:open?1:0,isOpen:open,opening:false,duration:.82,blocked:false};
     root.userData.dynamicRoot=true;root.userData.roomDoorId=door.id;
     for(const leaf of leaves){leaf.userData.dynamicRoot=true;leaf.userData.restAngle=leaf.rotation.y;}
     doors.push(door);sync(door);return door;

@@ -145,6 +145,16 @@ body:not(.ui-collapsed) #offline-status{z-index:14;bottom:calc(80px + env(safe-a
   .setting-value{font-size:10px}.setting-value i{padding:0 2px}.menu-footer{padding:8px 16px}#menu-footer-hint{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
+#loading{top:calc(72px + env(safe-area-inset-top));left:50%;width:min(320px,calc(100% - 32px));max-width:none;white-space:normal;padding:13px 16px;border:1px solid #d8e4cc90;background:#152a23ee;color:#eef2e8;border-radius:8px;box-shadow:0 10px 30px #07160e30;letter-spacing:0;z-index:20;transition:opacity .3s,transform .3s}
+.loading-heading{display:flex;align-items:center;gap:9px;font-size:12px}.loading-heading strong{font:inherit;letter-spacing:0!important}.loading-heading output{margin-left:auto;font-size:12px;font-variant-numeric:tabular-nums;color:#d6e1bb}
+.loading-spinner{width:15px;height:15px;border:2px solid #d3dfb935;border-top-color:#d3dfb9;border-radius:50%;animation:loading-turn 1s linear infinite}
+.loading-track{position:relative;margin:11px 0 8px;height:5px;overflow:hidden;border-radius:4px;background:#dbe8ce22}
+.loading-track progress{display:block;appearance:none;-webkit-appearance:none;width:100%;height:100%;border:0;background:transparent;accent-color:#cfddb5}.loading-track progress::-webkit-progress-bar{background:transparent}.loading-track progress::-webkit-progress-value{background:#cfddb5;border-radius:4px;transition:width .16s}.loading-track progress::-moz-progress-bar{background:#cfddb5;border-radius:4px}
+.loading-track::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,#fff7,transparent);transform:translateX(-100%);animation:loading-shine 1.6s linear infinite}
+#loading small{display:block;color:#afc2b4;font-size:10px;letter-spacing:0}#loading.loading-complete{opacity:0;transform:translateX(-50%) translateY(-5px)}#loading.loading-complete .loading-spinner{animation:none}
+#loading [data-loading-retry]{pointer-events:auto;color:#1d392c;background:#d6e1bb;border-radius:4px;padding:7px 14px;margin-top:9px;font-size:12px}#loading [hidden]{display:none}#loading.loading-error .loading-spinner,.loading-error .loading-track::after{animation:none}
+@keyframes loading-turn{to{transform:rotate(360deg)}}@keyframes loading-shine{to{transform:translateX(100%)}}
+@media(prefers-reduced-motion:reduce){.loading-spinner,.loading-track::after{animation:none!important}.loading-track progress::-webkit-progress-value,#loading{transition:none}}
 #settings-menu button,#settings-menu select{min-height:44px}
 #settings-menu #places button,#settings-menu #menu-resume,#settings-menu #menu-reset-sensitivity{min-height:44px}
 @media(orientation:landscape) and (max-height:600px){

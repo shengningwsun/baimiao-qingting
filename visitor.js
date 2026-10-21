@@ -108,7 +108,7 @@ export function createVisitor(scene,{colliders=[]}={}){
   let phase=0,lastPose='stand';
   const anchor=new T.Vector3(),focus=new T.Vector3(),desired=new T.Vector3(),candidate=new T.Vector3();
   const direction=new T.Vector3(),offset=new T.Vector3(),rightAxis=new T.Vector3(1,0,0);
-  const cameraHistory=new WeakMap(),nextCamera=new T.Vector3(),travel=new T.Vector3();
+  const cameraHistory=new WeakMap(),nextCamera=new T.Vector3(),travel=new T.Vector3(),cameraTarget=new T.Vector3();
   const sweepMin=new Float64Array(3),sweepMax=new Float64Array(3);
   const valid=v=>Number.isFinite(v)?v:0;
   const clamp=v=>T.MathUtils.clamp(valid(v),0,1);
@@ -182,7 +182,7 @@ export function createVisitor(scene,{colliders=[]}={}){
     group.updateMatrixWorld(true);
     return moving||!!s.transition;
   }
-  function distanceBeforeWall(start,end){
+  function distanceBeforeWall(start,end,minimum=.035){
     direction.copy(end).sub(start);const length=direction.length();if(length<1e-6)return 0;
     let fraction=1;const radius=.17;
     for(const c of colliders){
@@ -201,7 +201,7 @@ export function createVisitor(scene,{colliders=[]}={}){
       // Do not lock the camera inside that solid; all other walls still block it.
       if(hit&&!inside&&far>=0&&near>=0)fraction=Math.min(fraction,near);
     }
-    return fraction<1?Math.max(.035,length*fraction-.035):length;
+    return fraction<1?Math.max(minimum,length*fraction-.035):length;
   }
   function applyCamera(camera,state={}){
     const view=state.view??'first',yaw=state.yaw??0,pitch=state.pitch??0;
@@ -214,14 +214,15 @@ export function createVisitor(scene,{colliders=[]}={}){
     }
     const s=shape(state);eyePoint(state,focus);focus.y-=.21*s.stand+.08*s.sit;
     const prior=cameraHistory.get(camera),history=prior&&prior.anchor.distanceTo(anchor)<.65&&camera.position.distanceToSquared(prior.position)<1e-12?prior:null;
-    const controlled=!!state.pose||!!history?.held;
+    const controlled=!!state.pose||!!history;
     const dt=Math.min(.05,Math.max(0,state.dt??0));
     // A furniture action keeps its clear shoulder direction while the figure
     // turns, rather than jumping between the longest left/right camera rays.
     // After settling, store that shoulder relative to the look yaw. Looking
     // around therefore starts at the exact final angle of the action.
     const motion=!!state.pose?.transition;
-    const quiet=history&&controlled&&!motion&&(history.motion||!state.moving&&Math.abs(yaw-history.yaw)<1e-8&&Math.abs(pitch-history.pitch)<1e-8&&focus.distanceToSquared(history.focus)<1e-12);
+    const lensClear=history&&!colliders.some(c=>{const p=history.position;if(p.y<(c.y0??-1e6)-.025||p.y>(c.y1??1e6)+.025)return false;return c.radius!==undefined?Math.hypot(p.x-c.x,p.z-c.z)<c.radius+.025:p.x>c.x0-.025&&p.x<c.x1+.025&&p.z>c.z0-.025&&p.z<c.z1+.025;});
+    const quiet=history&&controlled&&!motion&&(history.motion||!state.moving&&Math.abs(yaw-history.yaw)<1e-8&&Math.abs(pitch-history.pitch)<1e-8&&focus.distanceToSquared(history.focus)<1e-12)&&lensClear;
     if(quiet){
       // Finish at the clear, actual shoulder reached by the action. This is a
       // settled camera, not an unfinished interpolation waiting for idle frames:
@@ -267,6 +268,32 @@ export function createVisitor(scene,{colliders=[]}={}){
     }
     direction.copy(desired).sub(focus);const ideal=direction.length();
     nextCamera.copy(focus).addScaledVector(direction.normalize(),Math.min(free,ideal));
+    if(history&&!motion&&!state.pose&&Math.abs(yaw-history.yaw)<1e-8&&Math.abs(pitch-history.pitch)<1e-8&&dt>0){
+      // Keep the last safe shoulder throughout ordinary walking. Follow the
+      // full player displacement first, then ease only the collision correction;
+      // sprinting cannot outrun the camera and head/leg gait adds no camera bob.
+      travel.copy(history.position).add(focus).sub(history.focus);
+      nextCamera.lerpVectors(travel,nextCamera,1-Math.exp(-12*dt));
+      direction.copy(nextCamera).sub(focus);const length=direction.length();
+      if(length>1e-6){const clear=distanceBeforeWall(focus,nextCamera);if(clear<length)nextCamera.copy(focus).addScaledVector(direction.normalize(),clear);}
+      // A doorway edge can abruptly shorten that focus ray by metres. Limit
+      // only this correction, then sweep/slide the actual lens from its last
+      // safe position rather than teleporting it to the new ray endpoint.
+      direction.copy(nextCamera).sub(travel);const correction=direction.length(),limit=5*dt;
+      if(correction>limit)nextCamera.copy(travel).addScaledVector(direction,limit/correction);
+      const target=cameraTarget.copy(nextCamera);nextCamera.copy(history.position);
+      for(const axis of ['x','z','y']){
+        candidate.copy(nextCamera);candidate[axis]=target[axis];
+        direction.copy(candidate).sub(nextCamera);const path=direction.length();
+        if(path>1e-6){const clear=Math.min(path,distanceBeforeWall(nextCamera,candidate,0));direction.copy(candidate).sub(nextCamera).normalize();nextCamera.addScaledVector(direction,clear);}
+      }
+      direction.copy(nextCamera).sub(focus);
+      if(direction.length()<.64){
+        if(direction.length()<1e-6)direction.set(Math.sin(baseAngle),.3,Math.cos(baseAngle));
+        candidate.copy(focus).addScaledVector(direction.normalize(),.64);
+        if(distanceBeforeWall(focus,candidate)>=.63)nextCamera.copy(candidate);
+      }
+    }
     if(history&&controlled&&motion){
       // Bound actual lens travel, including a changing occlusion result. Sweep
       // the lens along that short path as well as along the focus ray, so a
@@ -278,7 +305,7 @@ export function createVisitor(scene,{colliders=[]}={}){
       if(length>step&&length>1e-8)nextCamera.copy(history.position).addScaledVector(travel,step/length);
       const path=nextCamera.distanceTo(history.position);
       if(path>1e-6){
-        const clear=distanceBeforeWall(history.position,nextCamera);
+        const clear=distanceBeforeWall(history.position,nextCamera,0);
         if(clear<path)nextCamera.copy(history.position).addScaledVector(travel.copy(nextCamera).sub(history.position).normalize(),clear);
       }
       // A held camera must remain outside the figure when the approach passes
