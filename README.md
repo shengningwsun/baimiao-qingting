@@ -63,3 +63,5 @@ https://github.com/shengningwsun/baimiao-qingting/releases/latest/download/lates
 安卓与网页 1.1.2：修复全部17个门框的共面重叠闪烁，把照片中保护塑料膜下的门纠正为不透明实心古铜门板。8卧室、4卫浴、餐厅、厨房内门、阳台和两处外门均可平滑开关，共17组门20门叶，具备动态碰撞、防夹和半开门安全落点。菜单按漫游、画面、操作、资料四类重新排版，灵敏度直接调节，打开暂停、关闭继续。保留默认第一人称步行、1.5/3倍速度、原高清资源与连续坐卧动作。
 
 菜单分类与可读性参考[《羊蹄山之魂》官方设置资料](https://www.playstation.com/en-ca/games/ghost-of-yotei/accessibility-options/)及[《赛博朋克2077》官方设置介绍](https://www.cyberpunk.net/en/news/49591/update-2-1-accessibility-features)，未使用游戏UI素材。
+
+安卓与网页 1.1.3：高清画面准备增加真实加载进度条、百分比和轻量动画；按用户确认，餐厅及二楼阳台改为左右平移的玻璃推拉门。第三人称行走保持稳定肩位、平滑避墙，消除自动换侧引起的镜头晃动；继续支持加速跟随及手动环顾。
