@@ -172,8 +172,9 @@ function doorTrim(axis,x,z,t,y,w,h,depth){
     // its outer jamb to stay clear of the partition that meets the inner jamb.
     hingeSide=px>2.8&&pz>0?-1:1;
   }
-  buildDoorTrim(house,{axis,x:px,z:pz,y,width:w,height:h,depth});
-  const root=balcony||dining?buildSlidingDoor(house,{axis,x:px,z:pz,y,width:w,height:h,name}):buildEntryDoor(house,{axis,x:px,z:pz,y,width:w,height:h,depth,double:entry,hingeSide,openAngle,name});
+  const style=['bedroom','bathroom'].includes(category)?category:'bronze';
+  buildDoorTrim(house,{axis,x:px,z:pz,y,width:w,height:h,depth,style});
+  const root=balcony||dining?buildSlidingDoor(house,{axis,x:px,z:pz,y,width:w,height:h,name}):buildEntryDoor(house,{axis,x:px,z:pz,y,width:w,height:h,depth,double:entry,hingeSide,openAngle,name,style});
   if(outside)root.userData.kitchenExteriorDoor=true;
   doorSystem.register(root,{axis,x:px,z:pz,y,width:w,height:h,name,category,open:!['bedroom','bathroom'].includes(category)});
 }

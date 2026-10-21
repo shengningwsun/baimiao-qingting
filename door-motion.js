@@ -21,7 +21,8 @@ function leafBoxes(door,leaf,progress){
   }
   // The long pulls project beyond the panel on both faces.
   const handleX=sliding?-Math.sign(data.closedX)*(width/2-.065):direction*(width-.115);
-  boxes.push(rectangle(handleX-.017,handleX+.017,-.101,.101));
+  const handle=data.handleBounds;
+  boxes.push(handle?rectangle(handle.x0,handle.x1,handle.z0,handle.z1):rectangle(handleX-.017,handleX+.017,-.101,.101));
   return boxes;
 }
 function overlapsPlayer(box,player){

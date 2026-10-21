@@ -89,3 +89,10 @@
 菜单分类与可读性参考[《羊蹄山之魂》官方设置资料](https://www.playstation.com/en-ca/games/ghost-of-yotei/accessibility-options/)及[《赛博朋克2077》官方设置介绍](https://www.cyberpunk.net/en/news/49591/update-2-1-accessibility-features)。布局和样式由本项目编写，未使用游戏UI图像或其他游戏素材。
 
 1.1.3新增的餐厅及阳台玻璃推拉门、双轨及平移动画和加载动画由本项目制作，依用户对两层图纸的补充说明调整，无新增外部图像资源。
+
+## 1.1.4 白色卧室与卫生间门（2026-10-21）
+
+- 卧室款式参考 [Home Depot / JELD-WEN 白色实心单凹板 Shaker 门](https://www.homedepot.com/p/312600273)：白色实心凹板、宽门边；配本项目制作的哑黑短执手。
+- 卫生间款式参考 [京东白色长虹卫浴门商品](https://www.jd.com/jiage/98559f0681498f1e71b0.html?electedExtAttrSet=8113%2C&extAttrValue=expand_name%2C%40253194%3A%3A8113&sort_type=sort_default)及 [JDJ 窄框卫浴平开门](https://www.jdjwindowdoor.com/showproducts/productid/5420870/toilet-door)：白色窄铝框、长虹与磨砂隐私内层、银色执手。
+
+上述页面仅作实物造型参考，未下载、打包商品照片、商标或模型。门板、整体门套、执手与旋钮为本项目几何；长虹细纹为共享的256×4程序法线。卫浴乳白隐私内层按不透明方式近似磨砂效果，避免移动端昂贵的实时透射及排序问题；卧室为不透明烤漆面。保留原入户金属门及餐厅、阳台透明推拉门。
