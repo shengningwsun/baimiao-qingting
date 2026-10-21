@@ -65,3 +65,5 @@ https://github.com/shengningwsun/baimiao-qingting/releases/latest/download/lates
 菜单分类与可读性参考[《羊蹄山之魂》官方设置资料](https://www.playstation.com/en-ca/games/ghost-of-yotei/accessibility-options/)及[《赛博朋克2077》官方设置介绍](https://www.cyberpunk.net/en/news/49591/update-2-1-accessibility-features)，未使用游戏UI素材。
 
 安卓与网页 1.1.3：高清画面准备增加真实加载进度条、百分比和轻量动画；按用户确认，餐厅及二楼阳台改为左右平移的玻璃推拉门。第三人称行走保持稳定肩位、平滑避墙，消除自动换侧引起的镜头晃动；继续支持加速跟随及手动环顾。
+
+安卓与网页 1.1.4：参照商城实物，卧室8扇使用白色实心单凹板与黑色短执手；卫生间4扇使用白色窄框、乳白长虹磨砂隐私面与银色执手。配套白色整体门框，保留开关动画、碰撞与防夹，门扇渲染开销不变。
